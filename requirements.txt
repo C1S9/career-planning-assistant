@@ -1,0 +1,4 @@
+# Pin the package versions already installed and verified for this project.
+streamlit==1.66.0
+openai==3.35.1
+pydantic==2.14.1

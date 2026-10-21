@@ -1,0 +1,81 @@
+---
+doc: checklist
+status: draft
+---
+
+# Build Checklist
+
+Build mode: learn, matching the learner's request for hands-on, step-by-step guidance.
+
+The learner explicitly selected chat and DeepSeek. Full planning-document and build-order approval remain pending; this record does not silently approve unreviewed recommendations. Environment verified: Python 3.15.0, Streamlit 1.66.0, OpenAI client 3.35.1. No Git repository or completed commit has been verified.
+
+## Slices
+
+- [ ] **1. Discuss a career concern with a real DeepSeek reply**
+  Becomes usable: A local chat that accepts a message and answers with retained conversation context.
+  Why now: Proves the chosen provider and conversation flow before adding detailed task-plan machinery.
+  PRD ref: `prd.md > Conversation and Context`, `prd.md > Guided Career Consultation`
+  Spec ref: `spec.md > Chat Page — app.py`, `spec.md > DeepSeek Conversation — agent.py`
+  Build: Create the chat page, session history, private key configuration, DeepSeek request, explicit retry, and new-conversation action.
+  Verify (mechanical): Run provider-independent tests and Streamlit UI checks. After private setup, obtain a real reply and a contextual follow-up.
+  Learner check: Open the page, configure the key privately, discuss a fictional career concern, ask a follow-up, and report what happened.
+  Commit: `Add DeepSeek career conversation`
+
+- [ ] **2. Leave the conversation with a checked task plan**
+  Becomes usable: A concrete short or long plan with independently checked task fields and schedule bounds.
+  Why now: Builds the project-specific outcome on a working conversation.
+  PRD ref: `prd.md > Actionable Task Plan`
+  Spec ref: `spec.md > Checked Task Plan — models.py and agent.generate_plan`
+  Build: Review remaining product limits, verify DeepSeek structured output, and add plan validation with bounded correction.
+  Verify (mechanical): Check seven-day and ninety-day plans, invalid schedules, and a failed correction path.
+  Learner check: Request a plan, inspect the next action, revise its period, and report whether it is useful.
+  Commit: `Add validated career task plans`
+
+## Hands-on Checkpoints
+
+- [x] Early usable chat opened and explored by the learner — the learner reported success and shared a generated plan
+- [x] A real reply reported and shared by the learner
+- [x] A contextual follow-up verified in the same conversation — the learner shared a three-day revision retaining the earlier fictional background
+- [ ] Final task-plan journey explored and feedback completed
+
+## Final Review
+
+- [ ] Final review complete — agreed feedback resolved and learner confirms readiness
+
+## Code Tour and App Map
+
+- [ ] Guided route through one real message and reply completed
+- [ ] Optional edit and transfer reflection addressed
+- [ ] `devpost/app-map.html` generated from finished code, checked, and shown
+
+Activity and evidence: Environment imports verified; application checks and learner feedback are tracked below as they occur.
+Route and stops: Planned route is `app.py` -> `agent.reply` -> `prompts.SYSTEM_PROMPT`.
+Edit outcome: Not yet offered.
+Reflection: Not yet offered.
+Activity mode: Planned live app and editor.
+
+## Current Verification Evidence
+
+- Nine provider-independent tests passed using Python 3.15.0, Streamlit 1.66.0, and OpenAI client 3.35.1.
+- Checks cover context assembly, input and conversation bounds, empty and incomplete output, safe provider errors, page welcome and setup state, reruns without extra calls, conversation reset, and retry without a duplicate user turn.
+- All model replies in the automated checks were simulated. Separately, the learner reported successful live use and shared a seven-day plan. No key value is displayed or stored in this public record.
+- The learner has supplied the multi-turn follow-up. Formal plan approval and the first Git checkpoint remain pending. Slice 1 stays unchecked.
+
+## Revisions
+
+- The learner selected a conversational DeepSeek backend, replacing the earlier form-first provider proposal. Structured task validation remains a later milestone.
+- Added an explicit checked-plan action with a selected duration so the program can compare model output against a known user-controlled period. Ordinary chat stays available. This supersedes the earlier later-milestone note; live use of the new action remains to be verified.
+
+## Learning Documentation Update
+Added docs/LEARNING_GUIDE.md and explanatory English comments to app.py, agent.py, and prompts.py at the learner's request. Verified that executable Python structure is unchanged after excluding docstrings, and reran the same nine provider-independent tests successfully. A placeholder-only private settings file is prepared when absent; no real key is inspected. A live reply has since been reported by the learner; contextual follow-up and the guided code-tour activity remain pending.
+
+## First Learner-Reported Live Result
+The learner shared the response to the fictional business-degree and retail-experience scenario: three tasks scheduled on days 1-2, 3-5, and 6-7. Manual review confirmed three tasks, a day-1 start, and no schedule beyond day 7. Each task included an action, relevance, and completion evidence, with provisional assumptions stated. This is learner-supplied live-result evidence, not an independently executed network test or software plan validation. Next, revise the same conversation to a three-day period and check retained context.
+
+## Contextual Revision and Checked-Plan Implementation
+
+The learner supplied the follow-up result: the same three task themes were reduced to days 1, 2, and 3, retaining the fictional business-degree and retail background. Outreach completion was narrowed to sending a message. This verifies the reported live conversational revision; it is distinct from the new structured-plan operation.
+
+The checked-plan implementation passed 22 provider-independent tests, including period bounds at 1 and 365 days, three-day and ninety-day plans, task counts, field checks, mismatched periods, bounded correction, no correction on connection failure, and UI retry without duplicate user messages. A live checked-plan result is pending. No real key was read or changed for this feature.
+
+Next learner check: use **Create a task plan**, choose 3 days, select **Create checked plan**, and report the marked result or visible error. Do not mark slice 2 complete before that evidence and the remaining verification/checkpoint work.

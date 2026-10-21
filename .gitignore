@@ -1,0 +1,19 @@
+/devpost/learner-profile.md
+.env
+.env.*
+!.env.example
+/.venv/
+__pycache__/
+*.py[cod]
+/.streamlit/secrets.toml
+
+# Local credentials and editor backups; publish placeholder examples only.
+secrets.toml*
+!secrets.toml.example
+.env*
+!.env.example
+
+# Installed learning tools stay local; skills-lock.json records their sources.
+/.agents/
+/.claude/
+/agent/skills/

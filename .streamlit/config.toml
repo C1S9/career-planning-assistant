@@ -1,0 +1,12 @@
+# Native theme settings keep presentation separate from Python chat behavior.
+[theme]
+base = "light"
+primaryColor = "#276D61"
+backgroundColor = "#FAFBF9"
+secondaryBackgroundColor = "#EEF2EE"
+textColor = "#20302B"
+font = "sans serif"
+
+[browser]
+# Disable Streamlit's usage-statistics collection for this local project.
+gatherUsageStats = false

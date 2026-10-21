@@ -336,3 +336,12 @@ The learner reported that the three-day checked-plan test succeeded. The full ge
 The test was meaningful because the plan button exercises a different path from ordinary conversation: it saves the selected period, requests JSON, validates fields and timing, and only then attaches the checked label. The 22 simulated-response tests exercise failure and retry behavior; the learner's live report supplies separate evidence about the real provider path. Neither establishes career suitability.
 
 Open `devpost/app-map.html` in a browser for an offline reference route through three source locations. The reusable practice is to separate generated content from program-enforced constraints and compare output against the person's saved selection. This is a static reference; no interactive code tour or personal learning outcome is claimed.
+
+
+## 19. Make the Reviewed Repository Public
+
+The owner explicitly requested public visibility for [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant). Before changing it, the project history and intended files were reviewed again for the configured key and private files. GitHub then confirmed that the existing repository was public. A separate request without authentication retrieved the README, and its Git blob hash matched the reviewed copy. The anonymous REST API quota was exhausted, so the raw-file host was used for this access check.
+
+Making a repository public lets other people read the included source and history. It does not deploy the Streamlit application or provide API access to visitors. The real DeepSeek settings remain local. No license was added by the visibility change; license selection is still pending.
+
+Next submission material: record the working conversation and checked-plan result using fictional information. The official rules call for a demonstration video under three minutes, publicly visible on YouTube or Vimeo, and English submission materials. The learner supplies their own narration and submission answers. No recording or Devpost submission is claimed by this documentation update.

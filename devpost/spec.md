@@ -179,3 +179,12 @@ The learner's shared live three-day revision retained the fictional business-deg
 ## Reported Checked-Plan Result
 
 The learner reported that the three-day checked-plan test succeeded. The full generated plan was not supplied for independent content review. The learner then indicated that the chat functionality is sufficient; no additional chat feature was requested. Automated coverage remains distinct from learner-reported live evidence.
+
+
+## Sharing Instructions
+
+Public source repository: [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant). The owner explicitly authorized changing the existing repository from private to public. GitHub confirmed public visibility; the README was fetched without authentication and its Git blob hash matched the reviewed file. The repository contains 21 tracked files, including this specification, scope, PRD, tests, and the offline app map.
+
+The app runs locally on Windows; no hosted app URL has been deployed. Clone the repository, create the Python environment, install `requirements.txt`, configure DeepSeek privately using the placeholder example, and run `python -m streamlit run app.py` from the activated environment. Full commands are in `README.md`. Reviewers need their own authorized DeepSeek API access for live model calls; automated tests use simulated responses.
+
+The real API key, private settings, learner profile, and local Python environment remain outside Git. The owner authorized public visibility; no license grant was added by that action. License selection, the demonstration video, and the actual Devpost submission remain pending.

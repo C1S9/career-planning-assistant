@@ -27,3 +27,10 @@ This targeted check covers the current staging area and matching local text. It 
 ## Publication Verification
 
 The normal Git transport was reset by the network, so the reviewed snapshot was published through the authenticated GitHub API. The remote file-tree hash matched the reviewed local tree. The remote commit was reconstructed and hash-verified locally, and the remote branch and tracked-file list were checked again. No remote history was force-updated. The original unpublished local commit remains on `demo-before-api-upload`. Credentials were used in memory and were never written to these documents or printed.
+
+
+## Owner-Authorized Public Visibility
+
+The owner authorized making [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant) public. Before the change, the history check covered seven locally reachable commits and 31 unique blobs, with no configured-key, common long-token, or private-path findings. The remote had 21 tracked files and matched local `main`.
+
+GitHub confirmed `private: false`. An unauthenticated raw README request succeeded and matched its expected Git blob hash. Anonymous REST API requests were rate limited, so public-file access was checked separately. The private settings and learner profile remain ignored and absent from the reviewed repository history. Later documentation updates are scanned before publication. No key value is printed in this report.

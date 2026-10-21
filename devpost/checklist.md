@@ -89,3 +89,12 @@ The learner requested publication and selected a private repository. The initial
 The learner reported that the three-day checked-plan test succeeded. The full generated plan was not supplied for independent content review. The learner then indicated that the chat functionality is sufficient; no additional chat feature was requested. This records the observed success report, without claiming an agent-run live call, a complete advice-quality audit, or blanket approval of all draft recommendations.
 
 The offline `devpost/app-map.html` is prepared as a reference route against source commit `34c700c5e6021a581038b2faa24fa612cff53e25`. Paths and source anchors were checked. The learner requested proceeding with the existing chat, so no extra feature or compulsory hands-on exercise was added. An interactive tour, optional edit, and personal reflection were not performed; the map must not be described as evidence that they were. Public visibility, license approval, video recording, and Devpost submission remain pending.
+
+
+## Public Repository Checkpoint
+
+The owner explicitly requested public visibility. [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant) is now public. GitHub's authenticated repository metadata confirmed the visibility change, and an unauthenticated read of the raw README matched the reviewed Git blob hash. The anonymous REST API quota was exhausted, so the raw-file access check supplied the separate anonymous-access evidence.
+
+Before changing visibility, all seven locally reachable commits and 31 historical blobs were scanned for the configured API key, common long credential patterns, and private file paths, with no findings. The local and remote `main` commit and all 21 file paths matched. Subsequent documentation changes receive their own staging and history checks. These are targeted checks, not proof against every possible credential format.
+
+No application behavior or license was changed. License selection, the learner-created demo video and submission answers, and Devpost submission remain unfinished.

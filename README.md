@@ -10,7 +10,7 @@ Read [the step-by-step learning guide](docs/LEARNING_GUIDE.md) for the completed
 
 The chat interface, model-call code, and an explicit checked-plan action are implemented. Ordinary chat supports consultation. Plans generated through **Create checked plan** are validated for required fields, task count, and timing before display, with at most one correction request.
 
-The learner reported successful live use and shared both a seven-day plan and its three-day revision, preserving the fictional background. The new checked-plan action still needs a learner-observed live result. Automated checks use simulated provider replies. The initial greeting is local text, not proof of a successful API call. See `devpost/checklist.md` for evidence and unfinished checkpoints.
+The learner reported successful live use and shared both a seven-day plan and its three-day revision, preserving the fictional background. The learner also reported successful live use of the checked-plan action; its full output was not supplied for independent content review. Automated checks use simulated provider replies. The initial greeting is local text, not proof of a successful API call. See `devpost/checklist.md` for evidence and unfinished checkpoints.
 
 ## Setup on Windows
 
@@ -72,7 +72,11 @@ Chat history is session-only and may be lost when the browser connection ends. S
 
 ## Project Status
 
-The demo is stored in the [private GitHub repository](https://github.com/C1S9/career-planning-assistant). Publication was verified against the local commit and all 20 tracked file paths. Planning documents remain drafts for review. License selection, the final demo video, and Devpost submission remain pending. The checked-plan action still needs a learner-observed live result.
+The demo is stored in the [private GitHub repository](https://github.com/C1S9/career-planning-assistant). Publication was verified against the local commit and all 20 tracked file paths. Planning documents remain drafts for review. License selection, the final demo video, and Devpost submission remain pending. The learner has reported a successful live checked-plan test.
 
 ## Protect API Keys from Git
 Keep real credentials only in the ignored local settings file or a private environment variable. Secret-file backups and local environment variants are ignored; example files must contain placeholders only. Review the actual staged changes before every commit and never force-add private settings. See [the targeted local Git protection check](docs/API_KEY_GIT_CHECK.md) for the verified scope and limitations.
+
+## Code Reference
+
+Open [the offline app map](devpost/app-map.html) in a browser for a three-stop reference route from the plan button through the DeepSeek request to schedule validation. It is a technical reference, not a completed hands-on exercise or submission description.

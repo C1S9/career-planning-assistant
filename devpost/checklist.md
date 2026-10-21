@@ -76,10 +76,16 @@ The learner shared the response to the fictional business-degree and retail-expe
 
 The learner supplied the follow-up result: the same three task themes were reduced to days 1, 2, and 3, retaining the fictional business-degree and retail background. Outreach completion was narrowed to sending a message. This verifies the reported live conversational revision; it is distinct from the new structured-plan operation.
 
-The checked-plan implementation passed 22 provider-independent tests, including period bounds at 1 and 365 days, three-day and ninety-day plans, task counts, field checks, mismatched periods, bounded correction, no correction on connection failure, and UI retry without duplicate user messages. A live checked-plan result is pending. No real key was read or changed for this feature.
+The checked-plan implementation passed 22 provider-independent tests, including period bounds at 1 and 365 days, three-day and ninety-day plans, task counts, field checks, mismatched periods, bounded correction, no correction on connection failure, and UI retry without duplicate user messages. The learner has now reported a successful live checked-plan test; no full output was supplied for independent review. No real key was read or changed for this feature.
 
-Next learner check: use **Create a task plan**, choose 3 days, select **Create checked plan**, and report the marked result or visible error. Do not mark slice 2 complete before that evidence and the remaining verification/checkpoint work.
+The learner completed the requested three-day checked-plan test and reported success. A follow-up request for usability feedback received the response that chat functionality is sufficient. The draft planning records and remaining learning-wrap-up status are not silently marked approved or completed.
 
 ## Private Demo Publication
 
 The learner requested publication and selected a private repository. The initial demo snapshot was uploaded to [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant) and verified at `8106f8acf888e462187e0bd040fdf702e43d05c5` against the local commit, the exact file-tree hash, and all 20 tracked file paths. The actual staging area was checked for the configured key before committing; private settings and the learner profile were excluded. Normal Git transport failed, so an authenticated GitHub API fallback completed the upload without forcing remote history. Documentation was then updated to reflect this checkpoint. The publication does not close the pending live checked-plan result, formal planning review, code tour, or Devpost submission.
+
+## Learner-Reported Checked-Plan Success
+
+The learner reported that the three-day checked-plan test succeeded. The full generated plan was not supplied for independent content review. The learner then indicated that the chat functionality is sufficient; no additional chat feature was requested. This records the observed success report, without claiming an agent-run live call, a complete advice-quality audit, or blanket approval of all draft recommendations.
+
+The offline `devpost/app-map.html` is prepared as a reference route against source commit `34c700c5e6021a581038b2faa24fa612cff53e25`. Paths and source anchors were checked. The learner requested proceeding with the existing chat, so no extra feature or compulsory hands-on exercise was added. An interactive tour, optional edit, and personal reflection were not performed; the map must not be described as evidence that they were. Public visibility, license approval, video recording, and Devpost submission remain pending.

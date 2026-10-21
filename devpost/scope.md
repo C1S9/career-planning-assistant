@@ -66,4 +66,4 @@ The public repository must contain the working project and `scope.md`, `prd.md`,
 
 ## Checked-Plan Implementation Update
 
-The current implementation retains the confirmed chat format and adds an explicit duration selection and checked-plan action in the same page. It uses the existing conversation as context and validates the returned plan against the saved selection. The learner has demonstrated ordinary multi-turn chat with seven-day and three-day outputs; live verification of the checked-plan operation is still pending. This implementation update does not mark all draft recommendations approved.
+The current implementation retains the confirmed chat format and adds an explicit duration selection and checked-plan action in the same page. It uses the existing conversation as context and validates the returned plan against the saved selection. The learner has demonstrated ordinary multi-turn chat with seven-day and three-day outputs; the learner has now reported a successful live checked-plan test, without supplying its full generated output for independent review. This implementation update does not mark all draft recommendations approved.

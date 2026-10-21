@@ -105,4 +105,4 @@ These are future checks, not completed testing or learner personal information.
 
 ## Open Questions
 
-Live ordinary-chat use and a contextual revision have been reported by the learner. The newly implemented checked-plan operation still needs a learner-observed live result. Before treating the full plan as approved: review proposed limits, task validation, and appearance. Before publication: the learner chooses the final name and writes submission fields in their own words.
+Live ordinary-chat use and a contextual revision have been reported by the learner. The learner also reported that the live checked-plan test succeeded and indicated that the chat functionality is sufficient. Before treating the full plan as approved: review proposed limits, task validation, and appearance. Before publication: the learner chooses the final name and writes submission fields in their own words.

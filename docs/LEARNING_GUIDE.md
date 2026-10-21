@@ -305,7 +305,7 @@ All 22 automated tests passed using simulated replies. A separate check read eve
 
 At the initial preparation checkpoint, GitHub account connection, destination selection, and commit identity were pending. The learner subsequently selected a private repository and completed browser authentication. A GitHub noreply address was used for commit identity; no personal email or token was requested in chat.
 
-The ordinary conversational demo has learner-reported live evidence. The newer checked-plan action has automated coverage and still needs a learner-observed live result. Publication alone does not complete that verification or the Devpost submission.
+The ordinary conversational demo has learner-reported live evidence. The newer checked-plan action has automated coverage and now has a learner-reported successful live test. Publication alone does not complete that verification or the Devpost submission.
 
 
 ## 17. Publish and Verify the Private Demo
@@ -327,4 +327,12 @@ Open the repository while signed in to the owning GitHub account. Look for the p
 
 In the project terminal, `git status` shows pending local changes, and `git log --oneline -3` shows recent commits. A local commit and a remote upload are separate operations; always check the remote result before saying a release was uploaded. The normal `origin` URL remains configured for future Git pushes when network access permits.
 
-This publishes source code. Running the web application still requires the local Python environment and a privately configured DeepSeek key. It does not deploy a hosted app or submit the Devpost entry. The checked-plan action's live learner verification remains pending.
+This publishes source code. Running the web application still requires the local Python environment and a privately configured DeepSeek key. It does not deploy a hosted app or submit the Devpost entry. The learner subsequently reported a successful live checked-plan test; its full output was not supplied for independent review.
+
+## 18. Record the Live Checked-Plan Result
+
+The learner reported that the three-day checked-plan test succeeded. The full generated plan was not supplied for independent content review. The learner then indicated that the chat functionality is sufficient; no additional chat feature was requested.
+
+The test was meaningful because the plan button exercises a different path from ordinary conversation: it saves the selected period, requests JSON, validates fields and timing, and only then attaches the checked label. The 22 simulated-response tests exercise failure and retry behavior; the learner's live report supplies separate evidence about the real provider path. Neither establishes career suitability.
+
+Open `devpost/app-map.html` in a browser for an offline reference route through three source locations. The reusable practice is to separate generated content from program-enforced constraints and compare output against the person's saved selection. This is a static reference; no interactive code tour or personal learning outcome is claimed.

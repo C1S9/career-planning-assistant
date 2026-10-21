@@ -5,7 +5,7 @@ status: draft
 
 # Career Planning Assistant — Technical Specification
 
-Updated for the learner's explicit DeepSeek and conversational-interface choices. Other recommendations remain draft. The environment has been verified locally as Python 3.15.0 with Streamlit 1.66.0; the initial chat code passed nine provider-independent checks. Learner browser exploration and live DeepSeek replies remain unverified.
+Updated for the learner's explicit DeepSeek and conversational-interface choices. Other recommendations remain draft. The environment has been verified locally as Python 3.15.0 with Streamlit 1.66.0; the current implementation passed 22 provider-independent checks. The learner reported successful ordinary chat, a contextual revision, and a checked-plan test; the full checked-plan output was not supplied for independent review.
 
 ## How This Works, In Plain Language
 
@@ -35,7 +35,7 @@ The client package name does not determine the service: configure it explicitly 
 
 ## Where It Runs and How Someone Tries It
 
-Local Windows process, opened at `http://localhost:8501`. The learner has created `.venv` and installed Streamlit. The API client import is verified and the first chat application files now exist. Next, the learner opens the page, then configures model access privately.
+Local Windows process, opened at `http://localhost:8501`. The learner has created `.venv` and installed Streamlit. The API client import is verified and the first chat application files now exist. The learner has opened the page, configured model access privately, and reported successful live use.
 
 Startup for the current chat page:
 
@@ -44,7 +44,7 @@ Set-Location -LiteralPath 'D:\layerdesign'
 .\.venv\Scripts\python.exe -m streamlit run app.py --server.address localhost --server.port 8501
 ```
 
-Configure `DEEPSEEK_API_KEY` privately in the local process environment or in `.streamlit/secrets.toml`, using the provided placeholder-only `.streamlit/secrets.toml.example`. Environment values take precedence. The real secrets file is ignored by Git. Use optional `DEEPSEEK_MODEL` to select an available model. Never request a real key in chat or display it in output. A credentials template may contain placeholders only. The learner reported successful ordinary-chat use; the newly added JSON plan operation still needs live verification.
+Configure `DEEPSEEK_API_KEY` privately in the local process environment or in `.streamlit/secrets.toml`, using the provided placeholder-only `.streamlit/secrets.toml.example`. Environment values take precedence. The real secrets file is ignored by Git. Use optional `DEEPSEEK_MODEL` to select an available model. Never request a real key in chat or display it in output. A credentials template may contain placeholders only. The learner reported successful ordinary-chat use; the learner has also reported a successful live JSON plan test.
 
 Local recording and a public repository can support the submission; hosting is optional. See [competition rules](https://learn-ai-basics.devpost.com/rules).
 
@@ -162,9 +162,9 @@ Pause for actual learner output or hands-on feedback at each useful step. Do not
 
 Confirmed: DeepSeek backend, chat interface, Windows, beginner-level coding guidance, and English project content. Verified: Python 3.15.0 and Streamlit 1.66.0.
 
-The learner shared successful ordinary chat and a contextual three-day revision. Pending: a live checked-plan result, feedback on its controls, formal agreement on draft details, and final naming. SDK installation is verified. Chat configuration also includes a light theme and a placeholder-only private setup example. Formal document approval remains pending; continued setup does not silently mark all draft recommendations approved.
+The learner shared successful ordinary chat and a contextual three-day revision. The learner has also reported a successful checked-plan test and indicated that chat functionality is sufficient. Formal agreement on unreviewed draft details and final naming have not been separately recorded. SDK installation is verified. Chat configuration also includes a light theme and a placeholder-only private setup example. Formal document approval remains pending; continued setup does not silently mark all draft recommendations approved.
 
-The learner's explicit provider and chat choices replace the earlier form-first and provider proposals. The initial chat application and simulated-response checks are implemented. The learner has since provided ordinary-chat output and a contextual revision. The new JSON plan operation remains pending live confirmation.
+The learner's explicit provider and chat choices replace the earlier form-first and provider proposals. The initial chat application and simulated-response checks are implemented. The learner has since provided ordinary-chat output and a contextual revision. The learner has since reported successful live use of the JSON plan operation; no full output was supplied for independent content review.
 
 ## First Chat Milestone Evidence
 Nine provider-independent checks passed for the initial chat code. They exercised safe API handling, conversation limits, page setup, history, reset, and retry. No real DeepSeek request was made. The learner must still open the browser page and then verify a real conversation after private configuration. See checklist.md for unfinished milestones.
@@ -175,3 +175,7 @@ Nine provider-independent checks passed for the initial chat code. They exercise
 Twenty-two provider-independent tests passed in the development copy. They cover the chat regression cases, plan field and duration rules, bounded correction, absence of correction on provider connection failure, the actual selected period reaching the plan call, no extra request when changing a widget, correct UI labeling, and stable retry behavior. These checks simulate provider replies and do not prove the live JSON operation or career-advice quality. Pydantic 2.14.1 was already installed and has been pinned as a direct dependency.
 
 The learner's shared live three-day revision retained the fictional business-degree and retail background and reduced the tasks to days 1, 2, and 3. That completes the reported contextual-chat check, not the new checked-plan check. No real API key was read or changed for this implementation.
+
+## Reported Checked-Plan Result
+
+The learner reported that the three-day checked-plan test succeeded. The full generated plan was not supplied for independent content review. The learner then indicated that the chat functionality is sufficient; no additional chat feature was requested. Automated coverage remains distinct from learner-reported live evidence.

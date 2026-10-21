@@ -301,8 +301,30 @@ The staging area is Git's proposed next snapshot. Creating it does not upload fi
 
 All 22 automated tests passed using simulated replies. A separate check read every staged file and compared it against the local key in memory, without printing the key. No match or long `sk-` literal was found. Git confirmed that the private settings, learner profile, environment files, dependency environment, and installed learning tools are ignored. The staged changes also passed Git's whitespace check.
 
-### What still needs to happen
+### Preparation checkpoint
 
-GitHub account connection and the destination repository are pending. No commit author identity was configured on this computer, so the initial commit also awaits the authenticated account's identity. Do not invent an author or ask someone to paste an access token into chat. Once connected, create the commit, push it to the chosen repository, and verify that the remote branch points to the same commit. Report the repository URL only after that verification.
+At the initial preparation checkpoint, GitHub account connection, destination selection, and commit identity were pending. The learner subsequently selected a private repository and completed browser authentication. A GitHub noreply address was used for commit identity; no personal email or token was requested in chat.
 
 The ordinary conversational demo has learner-reported live evidence. The newer checked-plan action has automated coverage and still needs a learner-observed live result. Publication alone does not complete that verification or the Devpost submission.
+
+
+## 17. Publish and Verify the Private Demo
+
+The learner selected a private repository. The destination is [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant). The initial verified published snapshot is `8106f8acf888e462187e0bd040fdf702e43d05c5` and contains 20 tracked files.
+
+### What happened during upload
+
+1. Browser login authenticated Git to the learner's GitHub account. The repository was created with private visibility explicitly enabled.
+2. Only the reviewed files were committed. The private Streamlit settings, learner profile, local environment, caches, and installed learning tools stayed outside Git.
+3. The standard Git push connection was reset twice. The fallback used GitHub's authenticated API: initialize the empty repository, create the reviewed file tree, commit it, and advance `main` without forcing remote history.
+4. The uploaded file-tree hash was compared against the reviewed local snapshot. The remote commit object was reconstructed and hash-verified locally. GitHub's returned commit dates omit original timezone offsets, so the import checked candidate canonical representations against the exact commit hash before accepting an object.
+5. The original unpublished commit was retained on the local branch `demo-before-api-upload`. The local `main` and `origin/main` were synchronized with the verified uploaded commit.
+6. A separate authenticated check confirmed private visibility, the same local and remote commit, and the same 20 file paths. The API key was not printed, written to the upload scripts, or included in the snapshot.
+
+### How to inspect the result
+
+Open the repository while signed in to the owning GitHub account. Look for the private visibility indicator, `README.md`, `app.py`, and the English learning guide. The tracked configuration example contains a placeholder; the real `secrets.toml` is absent.
+
+In the project terminal, `git status` shows pending local changes, and `git log --oneline -3` shows recent commits. A local commit and a remote upload are separate operations; always check the remote result before saying a release was uploaded. The normal `origin` URL remains configured for future Git pushes when network access permits.
+
+This publishes source code. Running the web application still requires the local Python environment and a privately configured DeepSeek key. It does not deploy a hosted app or submit the Devpost entry. The checked-plan action's live learner verification remains pending.

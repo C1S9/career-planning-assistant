@@ -72,7 +72,7 @@ Chat history is session-only and may be lost when the browser connection ends. S
 
 ## Project Status
 
-Planning documents remain drafts for review. A local Git repository and reviewed initial staging area are prepared. GitHub publication awaits account connection and a destination repository. License selection, the final demo video, and Devpost submission remain pending.
+The demo is stored in the [private GitHub repository](https://github.com/C1S9/career-planning-assistant). Publication was verified against the local commit and all 20 tracked file paths. Planning documents remain drafts for review. License selection, the final demo video, and Devpost submission remain pending. The checked-plan action still needs a learner-observed live result.
 
 ## Protect API Keys from Git
 Keep real credentials only in the ignored local settings file or a private environment variable. Secret-file backups and local environment variants are ignored; example files must contain placeholders only. Review the actual staged changes before every commit and never force-add private settings. See [the targeted local Git protection check](docs/API_KEY_GIT_CHECK.md) for the verified scope and limitations.

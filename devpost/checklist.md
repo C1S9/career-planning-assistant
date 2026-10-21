@@ -7,7 +7,7 @@ status: draft
 
 Build mode: learn, matching the learner's request for hands-on, step-by-step guidance.
 
-The learner explicitly selected chat and DeepSeek. Full planning-document and build-order approval remain pending; this record does not silently approve unreviewed recommendations. Environment verified: Python 3.15.0, Streamlit 1.66.0, OpenAI client 3.35.1. No Git repository or completed commit has been verified.
+The learner explicitly selected chat and DeepSeek. Full planning-document and build-order approval remain pending; this record does not silently approve unreviewed recommendations. Environment verified: Python 3.15.0, Streamlit 1.66.0, OpenAI client 3.35.1. The initial demo snapshot was published to the private GitHub repository and verified at `8106f8acf888e462187e0bd040fdf702e43d05c5`; formal planning approval remains pending.
 
 ## Slices
 
@@ -59,7 +59,7 @@ Activity mode: Planned live app and editor.
 - Nine provider-independent tests passed using Python 3.15.0, Streamlit 1.66.0, and OpenAI client 3.35.1.
 - Checks cover context assembly, input and conversation bounds, empty and incomplete output, safe provider errors, page welcome and setup state, reruns without extra calls, conversation reset, and retry without a duplicate user turn.
 - All model replies in the automated checks were simulated. Separately, the learner reported successful live use and shared a seven-day plan. No key value is displayed or stored in this public record.
-- The learner has supplied the multi-turn follow-up. Formal plan approval and the first Git checkpoint remain pending. Slice 1 stays unchecked.
+- The learner has supplied the multi-turn follow-up. The first Git publication checkpoint is complete. Formal plan approval remains pending, so slice 1 stays unchecked.
 
 ## Revisions
 
@@ -79,3 +79,7 @@ The learner supplied the follow-up result: the same three task themes were reduc
 The checked-plan implementation passed 22 provider-independent tests, including period bounds at 1 and 365 days, three-day and ninety-day plans, task counts, field checks, mismatched periods, bounded correction, no correction on connection failure, and UI retry without duplicate user messages. A live checked-plan result is pending. No real key was read or changed for this feature.
 
 Next learner check: use **Create a task plan**, choose 3 days, select **Create checked plan**, and report the marked result or visible error. Do not mark slice 2 complete before that evidence and the remaining verification/checkpoint work.
+
+## Private Demo Publication
+
+The learner requested publication and selected a private repository. The initial demo snapshot was uploaded to [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant) and verified at `8106f8acf888e462187e0bd040fdf702e43d05c5` against the local commit, the exact file-tree hash, and all 20 tracked file paths. The actual staging area was checked for the configured key before committing; private settings and the learner profile were excluded. Normal Git transport failed, so an authenticated GitHub API fallback completed the upload without forcing remote history. Documentation was then updated to reflect this checkpoint. The publication does not close the pending live checked-plan result, formal planning review, code tour, or Devpost submission.

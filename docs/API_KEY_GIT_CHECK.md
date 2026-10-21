@@ -2,7 +2,7 @@
 
 ## Current Result
 
-A local Git repository has been initialized on branch `main`. Its initial staging area contains 20 explicitly selected source, configuration-example, test, and documentation files. No commit or remote upload has been completed at this checkpoint; GitHub account connection and the destination repository are pending.
+The demo was published to the [private GitHub repository](https://github.com/C1S9/career-planning-assistant) on branch `main`. The initial uploaded snapshot, `8106f8acf888e462187e0bd040fdf702e43d05c5`, was verified against the local commit and all 20 tracked file paths. Before publication, its exact staging area was checked for the configured local key and unintended private files. Documentation updates receive the same staging checks before publication.
 
 The private DeepSeek setting remains in the local `.streamlit/secrets.toml` file. Its contents were not printed, copied into deliverables, or staged.
 
@@ -23,3 +23,7 @@ Keep real credentials in the ignored settings file or private process environmen
 Installed learning tools remain local; `skills-lock.json` records their sources. The source, tests, requirements, English planning documents, and learning guide form the demo snapshot.
 
 This targeted check covers the current staging area and matching local text. It does not audit other repositories, external uploads, arbitrary credential formats, or future changes. Ignore rules do not remove an already committed credential; see the [official Git ignore documentation](https://git-scm.com/docs/gitignore).
+
+## Publication Verification
+
+The normal Git transport was reset by the network, so the reviewed snapshot was published through the authenticated GitHub API. The remote file-tree hash matched the reviewed local tree. The remote commit was reconstructed and hash-verified locally, and the remote branch and tracked-file list were checked again. No remote history was force-updated. The original unpublished local commit remains on `demo-before-api-upload`. Credentials were used in memory and were never written to these documents or printed.

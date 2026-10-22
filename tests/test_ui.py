@@ -88,7 +88,7 @@ class ChatPageTests(unittest.TestCase):
         self.assertEqual(mocked_plan.call_args.kwargs["duration_days"], 3)
         self.assertIn("retail", str(mocked_plan.call_args.args[0]))
         self.assertTrue(any("Task fields and schedule checked" in caption.value for caption in page.caption))
-        self.assertIn("3-day career plan", page.chat_message[-1].markdown[0].value)
+        self.assertIn("3-day action plan", page.chat_message[-1].markdown[0].value)
         page.run()
         self.assertEqual(mocked_plan.call_count, 1)
         self.assertEqual(mocked_reply.call_count, 1)

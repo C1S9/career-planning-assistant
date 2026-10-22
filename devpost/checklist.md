@@ -98,3 +98,19 @@ The owner explicitly requested public visibility. [https://github.com/C1S9/caree
 Before changing visibility, all seven locally reachable commits and 31 historical blobs were scanned for the configured API key, common long credential patterns, and private file paths, with no findings. The local and remote `main` commit and all 21 file paths matched. Subsequent documentation changes receive their own staging and history checks. These are targeted checks, not proof against every possible credential format.
 
 No application behavior or license was changed. License selection, the learner-created demo video and submission answers, and Devpost submission remain unfinished.
+
+
+## Version 0.2.0 — Requested Update
+
+The learner explicitly requested multiple life-consultation mentors, practical UI improvements, Git synchronization, versioning, and an executable release. This is a new authorized scope increment.
+
+- [x] Implement five mentor presets and pass the selected instructions to chat and checked-plan requests.
+- [x] Reset old context on mentor changes; verify no hidden resend after switching or rerendering.
+- [x] Simplify the chat canvas and provide native light/dark palettes and session-only password entry.
+- [x] Pass 29 provider-independent tests, retaining the existing conversation and plan checks.
+- [x] Verify one real learning-mentor plan with fictional spreadsheet-learning context: 3 tasks, 3 days, and valid fields/schedule.
+- [x] Build a portable Windows executable and pass its isolated native-launcher/server/frontend/script smoke test without external Python on PATH.
+- [ ] Synchronize the reviewed new source to GitHub and verify matching remote contents.
+- [ ] Publish and verify version v0.2.0 with the Windows ZIP, checksum, and build report.
+
+The app's new source and runtime do not imply a completed learner-led code tour, broader mentor-quality study, hosted backend, or Devpost submission. Earlier draft planning statuses are preserved honestly.

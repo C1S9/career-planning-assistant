@@ -26,7 +26,7 @@ class PlanRulesTests(unittest.TestCase):
             with self.subTest(days=days):
                 plan = parse_plan(json.dumps(plan_data(days)), expected_days=days)
                 self.assertEqual(plan.duration_days, days)
-                self.assertIn(f"{days}-day career plan", format_plan(plan))
+                self.assertIn(f"{days}-day action plan", format_plan(plan))
 
     def test_invalid_task_counts_are_rejected(self):
         for count in (0, 2, 9):

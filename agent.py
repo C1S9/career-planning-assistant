@@ -6,7 +6,8 @@ import json
 from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 
 from models import CareerPlan, ChatMessage, PlanValidationError, parse_plan, validate_duration
-from prompts import PLAN_SYSTEM_PROMPT, SYSTEM_PROMPT
+from mentors import DEFAULT_MENTOR
+from prompts import plan_system_prompt, system_prompt
 
 # The destination is DeepSeek, even though the compatible client is named OpenAI.
 BASE_URL = "https://api.deepseek.com"
@@ -42,7 +43,8 @@ def validate_history(messages: Sequence[ChatMessage]) -> None:
 
 
 def reply(
-    messages: Sequence[ChatMessage], *, api_key: str, model: str = DEFAULT_MODEL
+    messages: Sequence[ChatMessage], *, api_key: str, model: str = DEFAULT_MODEL,
+    mentor_id: str = DEFAULT_MENTOR,
 ) -> str:
     """Return one complete DeepSeek reply, or raise a safe ChatError."""
     # Validate here as well as in the page so this module is safe to reuse.
@@ -52,7 +54,11 @@ def reply(
 
     # The system message defines the assistant's behavior. User and assistant
     # messages provide the conversation context for this particular request.
-    payload = [{"role": "system", "content": SYSTEM_PROMPT}]
+    try:
+        instruction = system_prompt(mentor_id)
+    except ValueError as error:
+        raise ChatError(str(error)) from None
+    payload = [{"role": "system", "content": instruction}]
     payload.extend({"role": item["role"], "content": item["content"]} for item in messages)
 
     return _complete(payload, api_key=api_key, model=model)
@@ -64,6 +70,7 @@ def generate_plan(
     duration_days: int,
     api_key: str,
     model: str = DEFAULT_MODEL,
+    mentor_id: str = DEFAULT_MENTOR,
 ) -> CareerPlan:
     """Generate, check, and at most once regenerate a structured task plan."""
     validate_history(messages)
@@ -72,24 +79,28 @@ def generate_plan(
     except PlanValidationError as error:
         raise ChatError(str(error)) from None
 
+    try:
+        mentor_instruction = plan_system_prompt(mentor_id)
+    except ValueError as error:
+        raise ChatError(str(error)) from None
     schema = json.dumps(CareerPlan.model_json_schema(), ensure_ascii=True)
     instruction = (
-        PLAN_SYSTEM_PROMPT
+        mentor_instruction
         + f"\nThe selected planning period is exactly {duration_days} days."
         + "\nThe first task starts on day 1. Sort tasks by start day."
         + " All end days must fit the selected period."
         + "\nFollow this JSON schema:\n" + schema
         + '\nExample JSON shape (replace all example text and timing): '
         + '{"summary":"An exploration plan.","assumptions":[],"duration_days":3,'
-        + '"tasks":[{"title":"Identify skills","action":"Write five skills.",'
-        + '"start_day":1,"end_day":1,"reason":"Uses prior work experience.",'
-        + '"completion_criterion":"A written list of five skills."},'
-        + '{"title":"Compare directions","action":"Compare two roles.",'
-        + '"start_day":2,"end_day":2,"reason":"Tests possible interests.",'
+        + '"tasks":[{"title":"Identify priorities","action":"Write three priorities.",'
+        + '"start_day":1,"end_day":1,"reason":"Clarifies the current concern.",'
+        + '"completion_criterion":"A written list of three priorities."},'
+        + '{"title":"Compare options","action":"Compare two approaches.",'
+        + '"start_day":2,"end_day":2,"reason":"Tests possible directions.",'
         + '"completion_criterion":"A comparison note."},'
-        + '{"title":"Take a next step","action":"Send one outreach message.",'
+        + '{"title":"Take a next step","action":"Try one small experiment.",'
         + '"start_day":3,"end_day":3,"reason":"Creates a practical next step.",'
-        + '"completion_criterion":"One message sent."}]}'
+        + '"completion_criterion":"One experiment completed and a note written."}]}'
     )
     feedback = ""
     for attempt in range(2):

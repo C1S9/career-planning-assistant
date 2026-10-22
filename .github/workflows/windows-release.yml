@@ -1,0 +1,57 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.15'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-build.txt
+      - name: Install pinned build tools
+        run: python -m pip install -r requirements-build.txt
+      - name: Verify version tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $expectedTag = 'v' + (Get-Content -LiteralPath VERSION -Raw).Trim()
+          if ($env:GITHUB_REF_NAME -ne $expectedTag) { throw 'Tag and VERSION do not match.' }
+      - name: Test application behavior without API credit
+        run: python -m unittest discover -s tests -v
+      - name: Build and smoke-test the portable Windows package
+        run: python scripts/build_windows.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Windows-portable-package
+          path: release/*
+          if-no-files-found: error
+          compression-level: 0
+      - name: Publish new tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view $env:GITHUB_REF_NAME --json id *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'Release already exists; keeping its uploaded assets unchanged.'
+            exit 0
+          }
+          $notesPath = 'docs/releases/' + $env:GITHUB_REF_NAME + '.md'
+          gh release create $env:GITHUB_REF_NAME release/*.zip release/SHA256SUMS.txt release/BUILD_REPORT.json --verify-tag --title ('Life Direction Agent ' + $env:GITHUB_REF_NAME) --notes-file $notesPath
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

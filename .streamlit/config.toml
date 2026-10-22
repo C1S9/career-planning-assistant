@@ -1,12 +1,26 @@
-# Native theme settings keep presentation separate from Python chat behavior.
+# Shared typography with separate, switchable light and dark color palettes.
 [theme]
-base = "light"
-primaryColor = "#276D61"
+font = "sans serif"
+baseRadius = "0.6rem"
+buttonRadius = "0.5rem"
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#246B5C"
 backgroundColor = "#FAFBF9"
 secondaryBackgroundColor = "#EEF2EE"
 textColor = "#20302B"
-font = "sans serif"
+borderColor = "#D4DED7"
+
+[theme.dark]
+primaryColor = "#2E7D6C"
+backgroundColor = "#101915"
+secondaryBackgroundColor = "#1B2922"
+textColor = "#E8F0EA"
+borderColor = "#36493E"
 
 [browser]
-# Disable Streamlit's usage-statistics collection for this local project.
 gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"

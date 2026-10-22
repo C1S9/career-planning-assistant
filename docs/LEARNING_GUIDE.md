@@ -345,3 +345,30 @@ The owner explicitly requested public visibility for [https://github.com/C1S9/ca
 Making a repository public lets other people read the included source and history. It does not deploy the Streamlit application or provide API access to visitors. The real DeepSeek settings remain local. No license was added by the visibility change; license selection is still pending.
 
 Next submission material: record the working conversation and checked-plan result using fictional information. The official rules call for a demonstration video under three minutes, publicly visible on YouTube or Vimeo, and English submission materials. The learner supplies their own narration and submission answers. No recording or Devpost submission is claimed by this documentation update.
+
+
+## 20. Add Mentor Presets and Package Version 0.2.0
+
+The learner requested this update after the first demo: multiple consultation mentors, a simpler UI, Git synchronization, versioning, and an exe that removes Python installation and manual deployment from the user journey.
+
+### Follow one selected mentor
+
+The sidebar returns a stable id such as `learning`. `mentors.py` maps it to a welcome, purpose, and specific instruction. `prompts.system_prompt` combines those instructions with shared rules. `agent.reply` sends that system message and the current conversation to DeepSeek. The plan path uses the same mentor and adds the JSON contract. A preset changes instructions; it does not train a model.
+
+Changing the selected mentor calls `new_conversation`, creates a fresh request token, clears the transcript and pending request, and resets the plan period. This prevents a relationship mentor from accidentally receiving an earlier career conversation. An ordinary rerender still consumes no new request permission. The tests exercise both successful and failed prior requests before a switch.
+
+### Separate appearance, credentials, and behavior
+
+The main chat stays readable while the sidebar holds its controls. `.streamlit/config.toml` supplies shared typography and separate light/dark colors. A password field can set a key for this session; the callback clears the entry field and the key never becomes part of model messages or a saved file. Existing private settings remain supported. The packaged app includes only the public theme file, never `secrets.toml`.
+
+### Understand the executable boundary
+
+PyInstaller packages Python and imported libraries with a small launcher. `desktop.py` starts one child server on `127.0.0.1`, opens the default browser, and stops that child when the launcher closes. The ZIP's `_internal` directory is necessary; the exe is not an offline language model. DeepSeek calls still need internet access and an authorized key.
+
+The build script first verifies the actual frozen program with external Python removed from PATH, then includes dependency notices, a source-hash manifest, the portable ZIP, and its checksum. It never copies the whole project directory. Only reviewed source files, public configuration, and required library assets are collected.
+
+### Evidence and release automation
+
+Twenty-nine simulated-response tests passed. One additional real learning-mentor plan used fictional spreadsheet-learning context and returned a validated three-day, three-task plan. The desktop smoke check covered Tk initialization, plan validation, server readiness, a real frontend asset, and UI script execution. These checks have different meanings; none certifies all personal guidance.
+
+The maintainer reviews source and secret exclusions before synchronization. GitHub Actions tests incoming changes; matching version tags build a Windows package and publish a release without overwriting existing release assets. Manual workflow runs produce artifacts. No background process watches the user's files and commits arbitrary edits.

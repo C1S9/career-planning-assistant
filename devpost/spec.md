@@ -188,3 +188,18 @@ Public source repository: [https://github.com/C1S9/career-planning-assistant](ht
 The app runs locally on Windows; no hosted app URL has been deployed. Clone the repository, create the Python environment, install `requirements.txt`, configure DeepSeek privately using the placeholder example, and run `python -m streamlit run app.py` from the activated environment. Full commands are in `README.md`. Reviewers need their own authorized DeepSeek API access for live model calls; automated tests use simulated responses.
 
 The real API key, private settings, learner profile, and local Python environment remain outside Git. The owner authorized public visibility; no license grant was added by that action. License selection, the demonstration video, and the actual Devpost submission remain pending.
+
+
+## Version 0.2.0 — Technical Changes
+
+- `mentors.py` defines five immutable presets with id, name, description, welcome, and instructions. `get_mentor` rejects unknown ids before a paid request.
+- `prompts.system_prompt` and `prompts.plan_system_prompt` compose shared coaching rules with the selected preset. `agent.reply` and `agent.generate_plan` receive an explicit mentor id; provider payloads exclude local validation metadata and credentials.
+- `app.py` resets conversation and pending-request state on mentor changes. The selected mentor is captured with an in-flight request, and the existing request token prevents stale output from entering a reset thread. No durable or shared history is introduced.
+- The sidebar owns mentor selection, password-field connection settings, and checked-plan controls. Pasted credentials are held only in session state. Shared typography and distinct light/dark tokens live in `.streamlit/config.toml`; native viewer toolbar mode hides developer-only deployment controls.
+- `version.py`, `VERSION`, and Windows version resources identify 0.2.0. The internal `CareerPlan` name is retained for compatibility; displayed plans use the general action-plan heading.
+- `desktop.py` uses public `st.App.run` with absolute bundled script paths and `127.0.0.1` binding. A Tk launcher owns a child server, opens the default browser after readiness, and stops the process on Quit. Private settings are not collected from the source checkout into the package.
+- `packaging/windows.spec` packages an explicit source/config allowlist, Streamlit frontend assets, required metadata, dynamic server imports, and the Python/Tk runtime. `scripts/build_windows.py` adds dependency notices, a source-hash manifest, smoke results, a portable ZIP, and its SHA-256.
+- The frozen smoke test removes external Python from PATH and checks native launcher initialization, valid/invalid plan parsing, localhost readiness, a real frontend JS asset, and actual UI script execution. The script-health endpoint is used only as a pinned Streamlit 1.66 internal smoke mechanism.
+- GitHub Actions runs tests on changes and builds matching tagged releases. App users receive no GitHub token; publishing credentials belong only to the maintainer or workflow environment.
+
+The updated app passed 29 provider-independent checks. A separate live learning-mentor request with fictional context returned three tasks within the requested three-day period and passed the validator. It does not establish every mentor's advice quality. A portable package has passed isolated smoke testing; final release URLs and assets must be verified after publication rather than inferred from a successful build.

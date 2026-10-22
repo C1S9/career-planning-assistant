@@ -17,3 +17,12 @@ secrets.toml*
 /.agents/
 /.claude/
 /agent/skills/
+
+# Generated desktop packages and local release checks are not source code.
+/build/
+/dist/
+/release/
+/output/
+/.playwright-cli/
+/.playwright/
+*.log

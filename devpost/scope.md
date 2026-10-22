@@ -67,3 +67,12 @@ The public repository must contain the working project and `scope.md`, `prd.md`,
 ## Checked-Plan Implementation Update
 
 The current implementation retains the confirmed chat format and adds an explicit duration selection and checked-plan action in the same page. It uses the existing conversation as context and validates the returned plan against the saved selection. The learner has demonstrated ordinary multi-turn chat with seven-day and three-day outputs; the learner has now reported a successful live checked-plan test, without supplying its full generated output for independent review. This implementation update does not mark all draft recommendations approved.
+
+
+## Version 0.2.0 — Authorized Expansion
+
+The learner explicitly requested mentor presets for different life-consultation needs, a simpler practical interface, Git synchronization, a new version, and a Windows executable release that does not require users to deploy the app. This updates the earlier career-only PoC boundary. The initial presets are career and work, life direction, learning and skills, habits and focus, and communication and relationships. They use the same DeepSeek API with distinct instructions; they are not newly trained models.
+
+The release boundary is one browser chat UI and a portable Windows launcher that starts a loopback-only server. Users extract a ZIP and run an exe without installing Python. Internet access and the user's authorized DeepSeek API key remain necessary. No shared owner's key, hosted backend, offline model, persistent database, account system, or background updater is added.
+
+Mentor changes start a fresh conversation. Checked action plans retain the existing 1–365-day, 3–8-task validation rules. Native light/dark themes and sidebar controls simplify the visible flow. This records the new authorized work without retroactively inventing approval of every earlier draft recommendation.

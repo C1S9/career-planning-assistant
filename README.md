@@ -1,82 +1,89 @@
-# Career Planning Assistant
+# Life Direction Agent
 
-A local conversational prototype for discussing career uncertainty and practical next steps, using the DeepSeek API.
+**Version 0.2.0** · English coaching conversations · DeepSeek · Windows portable app
 
-## Learn While Building
+A conversational app with five mentor presets and explicit, independently checked action plans. Choose the area you want to work on, explain your situation, and turn the conversation into manageable next steps.
 
-Read [the step-by-step learning guide](docs/LEARNING_GUIDE.md) for the completed setup process, a walkthrough of one message, explanations of the annotated code, private API configuration, and checks for the first genuine reply. Code comments and project documentation use English; conversational teaching may continue in Chinese.
+## Windows: download and run
 
-## Current Milestone
+Open the [v0.2.0 release](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.2.0), download `LifeDirectionAgent-v0.2.0-windows-x64.zip`, extract the entire folder, and double-click `LifeDirectionAgent.exe`. Keep `_internal` beside the exe. The launcher opens the app in your default browser; **Quit** stops its local server.
 
-The chat interface, model-call code, and an explicit checked-plan action are implemented. Ordinary chat supports consultation. Plans generated through **Create checked plan** are validated for required fields, task count, and timing before display, with at most one correction request.
+You do not install Python, Node.js, or Streamlit, and you do not deploy a server. Internet access and your own authorized DeepSeek API key are still required for model replies. No owner's key or prepaid API access is included. See [Windows quick start](docs/WINDOWS_QUICKSTART.md) for connection, launch, and troubleshooting instructions.
 
-The learner reported successful live use and shared both a seven-day plan and its three-day revision, preserving the fictional background. The learner also reported successful live use of the checked-plan action; its full output was not supplied for independent content review. Automated checks use simulated provider replies. The initial greeting is local text, not proof of a successful API call. See `devpost/checklist.md` for evidence and unfinished checkpoints.
+The executable is unsigned. Release files include a ZIP checksum, build report, and third-party dependency notices. Application license selection remains separate and pending.
 
-## Setup on Windows
+## Choose a mentor
 
-Verified environment: Python 3.15.0, Streamlit 1.66.0, and OpenAI Python client 3.35.1. The client is configured to contact DeepSeek.
+| Mentor | Focus |
+| --- | --- |
+| Career & work | Career exploration, transferable skills, and work decisions |
+| Life direction | Values, priorities, options, and small experiments |
+| Learning & skills | Learning goals, deliberate practice, and study routines |
+| Habits & focus | Sustainable routines, task initiation, and reducing friction |
+| Communication & relationships | Clearer conversations, boundaries, and ordinary disagreements |
+
+Changing mentors starts a fresh conversation, so prior context is not silently shared across mentor modes. **New Conversation** resets the current thread. The page keeps the chat canvas simple, with mentor, connection, and plan controls in the sidebar. Select **Light**, **Dark**, or **System** in the top-right app menu.
+
+These are prompt presets using the same DeepSeek backend, not separately trained models or licensed professionals. They provide general coaching; the person retains ownership of decisions.
+
+## Connect privately
+
+Open **Connection**, paste a key into the password field, and select **Use for this session**. The pasted key stays in the browser session and is not saved to disk. **Forget session key** removes that session override. Environment variables or optional private Streamlit settings can still provide credentials.
+
+For source runs, copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and configure the real key locally, or use private process environment variables `DEEPSEEK_API_KEY` and optional `DEEPSEEK_MODEL`. Environment settings override the local file; a pasted session key overrides both. Real settings, backup secret files, local environments, and `devpost/learner-profile.md` are excluded from Git and desktop packaging.
+
+The compatible Python client contacts [DeepSeek](https://api-docs.deepseek.com/) at `https://api.deepseek.com`. The default model is `deepseek-flash`; model access and API balance belong to the account whose key is used.
+
+## Create a checked action plan
+
+1. Describe your situation and constraints in the chat.
+2. Open **Create a task plan**, select **Plan length (days)** from 1 to 365, and select **Create checked plan**.
+3. The result must have 3–8 tasks, required text fields, a day-1 start, ordered start days, and dates inside the saved selection.
+4. A passing result is marked **Task fields and schedule checked**. The label does not certify personal suitability, current opportunities, or outcomes.
+
+The selected mentor and current conversation reach the JSON request. A structural failure permits one correction, for at most two provider calls per click. Provider connection/account errors and incomplete output stop immediately. Explicit retry preserves the original user turn and duration; unrelated page reruns and theme changes do not authorize another request. Ordinary chat has no validation label.
+
+## Run from source on Windows
+
+Verified development environment: Python 3.15.0, Streamlit 1.66.0, OpenAI-compatible client 3.35.1, and Pydantic 2.14.1.
 
 ```powershell
-Set-Location -LiteralPath 'D:\layerdesign'
+git clone https://github.com/C1S9/career-planning-assistant.git
+Set-Location -LiteralPath '.\career-planning-assistant'
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address localhost
 ```
 
-If `.venv` already exists and the dependencies are installed, use that environment.
+If your checkout is already at `D:\layerdesign`, open that folder and reuse its `.venv` instead of cloning again. Open the local address shown in the terminal. Stop the source server with Ctrl+C.
 
-## Configure DeepSeek Privately
-
-Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and replace the placeholder key locally. Never post your real key in a conversation or screenshot. Alternatively, configure `DEEPSEEK_API_KEY` and optional `DEEPSEEK_MODEL` in the local process environment; environment settings take precedence.
-
-The default model is `deepseek-flash`, as listed in the current [DeepSeek API guide](https://api-docs.deepseek.com/). An account with API access and available usage balance is required for real replies. Check actual availability in your own account.
-
-## Run
-
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run app.py --server.address localhost --server.port 8501
-```
-
-Open `http://localhost:8501`. Without credentials, the page shows the welcome and setup state. With credentials, send a fictional career concern, then a follow-up that refers to earlier context. **New Conversation** clears the active history. Stop the local server with Ctrl+C.
-
-## How the Files Fit Together
-
-- `app.py`: chat page, per-session history, explicit retry, and reset.
-- `agent.py`: DeepSeek request, conversation limits, response checks, and safe errors.
-- `prompts.py`: English career-consultation instructions.
-- `models.py`: strict task fields, plan duration, schedule validation, and checked-plan formatting.
-- `.streamlit/config.toml`: light theme and local app settings.
-- `devpost/`: scope, product requirements, technical specification, and build tracking.
-
-One explicit send makes one non-streaming request. SDK automatic retries are disabled. A failed reply preserves the user's message and can be retried explicitly without duplicating the message. Ordinary page reruns do not resend it. Full conversation history is sent with each turn; see [DeepSeek multi-round conversation](https://api-docs.deepseek.com/guides/multi_round_chat/).
-
-## Create a Checked Task Plan
-
-1. Share a career concern and relevant background in the chat.
-2. Expand **Create a task plan** and choose **Plan length (days)**, from 1 to 365.
-3. Select **Create checked plan**. The chosen period is saved with the request; changing a widget alone does not call the model.
-4. A successful result is marked **Task fields and schedule checked**. It contains 3–8 tasks, starts on day 1, and stays inside the selected period.
-
-This action requests JSON from DeepSeek, parses it into Pydantic models, and compares its duration against the actual selection. A structural or schedule failure permits one regeneration with validation feedback, for at most two requests per click. Connection errors, incomplete replies, and account errors stop immediately. Failed plans are not displayed as checked; explicit retry keeps the original requested period and user turn.
-
-The label does not certify job availability, career suitability, or whether a person will complete the tasks. Ordinary conversational text has no checked-plan label. See [DeepSeek JSON output](https://api-docs.deepseek.com/guides/json_mode/) for the provider format.
-
-## Verify Without a Paid API Request
+## Verify and package
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+.\.venv\Scripts\python.exe scripts/build_windows.py
 ```
 
-These tests use simulated provider responses. They do not prove live credentials, account balance, model availability, or career-advice quality.
+The build uses PyInstaller 6.22.3 and an explicit public-file allowlist. It bundles Streamlit's frontend, the application modules, the Python runtime, native launcher resources, and dependency notices. Its isolated smoke test removes external Python from PATH, checks the launcher, field/schedule validation, local server, frontend asset, and app-script execution without a paid API call. Results and SHA-256 are in `release/`; generated packages are not committed to Git.
 
-Chat history is session-only and may be lost when the browser connection ends. Submitted messages are sent to DeepSeek; session-only storage does not make the model request local. The app does not write full conversations to its own logs.
+GitHub Actions runs application checks on pushes and pull requests. A matching `v*` tag builds and tests a Windows package and publishes a new Release; an existing release is left unchanged. Manual workflow runs produce build artifacts. No filesystem watcher or background updater automatically commits unrelated local work.
 
-## Project Status
+## Code and learning references
 
-The demo is stored in the [public GitHub repository](https://github.com/C1S9/career-planning-assistant). Public visibility and anonymous README access were verified, alongside the matching local and remote commit and all 21 tracked file paths. Planning documents remain drafts for review. License selection, the final demo video, and Devpost submission remain pending. The learner has reported a successful live checked-plan test.
+- `mentors.py`: five immutable presets and role-specific context.
+- `prompts.py`: shared rules plus selected-mentor instructions.
+- `app.py`: sidebar controls, session-only credentials, conversation state, explicit requests and retry.
+- `agent.py`: DeepSeek boundary and bounded structured-plan correction.
+- `models.py`: task fields, schedule checks, and readable output. The internal `CareerPlan` type is retained for compatibility; the visible output is now an action plan for any mentor.
+- `desktop.py`: native launcher and a loopback-only Streamlit server using the public `st.App.run` API.
+- `packaging/` and `scripts/build_windows.py`: reproducible Windows packaging and smoke checks.
+- [Learning guide](docs/LEARNING_GUIDE.md), [offline app map](devpost/app-map.html), and [release notes](docs/releases/v0.2.0.md).
 
-## Protect API Keys from Git
-Keep real credentials only in the ignored local settings file or a private environment variable. Secret-file backups and local environment variants are ignored; example files must contain placeholders only. Review the actual staged changes before every commit and never force-add private settings. See [the targeted local Git protection check](docs/API_KEY_GIT_CHECK.md) for the verified scope and limitations.
+## Evidence and remaining work
 
-## Code Reference
+Twenty-nine provider-independent checks passed for the updated app. Separately, one live learning-mentor request using fictional spreadsheet-learning context returned a three-day, three-task plan that passed the real field and schedule validator. This single live check does not certify every mentor's advice quality. Earlier learner-reported chat and checked-plan successes belong to the initial demo.
 
-Open [the offline app map](devpost/app-map.html) in a browser for a three-stop reference route from the plan button through the DeepSeek request to schedule validation. It is a technical reference, not a completed hands-on exercise or submission description.
+The Windows package passed its isolated bundled smoke check. See the release build report for the final artifact details. This is a locally running application with a public source repository; a hosted service, background updater, completed demo video, and Devpost submission are not included.
+
+Messages are sent to DeepSeek. History is kept only in the browser session, without an application chat database, and may be lost when the connection ends. The app does not write complete chats or keys to its own logs. Never include keys or personal conversations in screenshots or bug reports.

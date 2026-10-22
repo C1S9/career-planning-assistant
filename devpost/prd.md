@@ -106,3 +106,17 @@ These are future checks, not completed testing or learner personal information.
 ## Open Questions
 
 Live ordinary-chat use and a contextual revision have been reported by the learner. The learner also reported that the live checked-plan test succeeded and indicated that the chat functionality is sufficient. Before treating the full plan as approved: review proposed limits, task validation, and appearance. Before publication: the learner chooses the final name and writes submission fields in their own words.
+
+
+## Version 0.2.0 — Mentor and Desktop Journey
+
+The learner requested the expansion recorded in `scope.md > Version 0.2.0 — Authorized Expansion`.
+
+1. Extract the portable Windows ZIP and open the exe, or run the source checkout.
+2. The native launcher starts a local server and opens the default browser. Closing the launcher stops the owned process.
+3. Choose one of five mentor presets from the sidebar. Display its purpose and tailored greeting. A change resets previous conversation, pending reply, and selected plan duration without making an API call.
+4. Use an existing private setting or enter a DeepSeek key through a password field. A pasted key lasts only for this session; it is not persisted or bundled.
+5. Converse with the chosen mentor, then create a checked action plan using that same mentor and the saved period.
+6. Switch between native light and dark appearances from Settings. Settings, rerenders, or mentor changes alone do not authorize a model request.
+
+The main canvas remains a readable conversation. Mentor, connection, and plan controls are in the sidebar. Application labels, prompts, comments, help, and release documentation remain English. The packaged app requires neither Python installation nor a user-managed deployment, but still requires internet and API access. The release ZIP includes all support files; moving only the exe is unsupported.

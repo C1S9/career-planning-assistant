@@ -86,7 +86,7 @@ def parse_plan(raw: str, *, expected_days: int) -> CareerPlan:
 
 def format_plan(plan: CareerPlan) -> str:
     """Turn an already checked plan into readable chat text."""
-    lines = [f"## {plan.duration_days}-day career plan", "", plan.summary]
+    lines = [f"## {plan.duration_days}-day action plan", "", plan.summary]
     if plan.assumptions:
         lines.extend(["", "**Assumptions**"])
         lines.extend(f"- {assumption}" for assumption in plan.assumptions)

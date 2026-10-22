@@ -110,7 +110,15 @@ The learner explicitly requested multiple life-consultation mentors, practical U
 - [x] Pass 29 provider-independent tests, retaining the existing conversation and plan checks.
 - [x] Verify one real learning-mentor plan with fictional spreadsheet-learning context: 3 tasks, 3 days, and valid fields/schedule.
 - [x] Build a portable Windows executable and pass its isolated native-launcher/server/frontend/script smoke test without external Python on PATH.
-- [ ] Synchronize the reviewed new source to GitHub and verify matching remote contents.
-- [ ] Publish and verify version v0.2.0 with the Windows ZIP, checksum, and build report.
+- [x] Synchronize the reviewed new source to GitHub and verify matching remote contents.
+- [x] Publish and verify version v0.2.0 with the Windows ZIP, checksum, and build report.
 
 The app's new source and runtime do not imply a completed learner-led code tour, broader mentor-quality study, hosted backend, or Devpost submission. Earlier draft planning statuses are preserved honestly.
+
+## Version 0.2.0 — Publication Evidence
+
+Published release: [Life Direction Agent v0.2.0](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.2.0). The source tag points to `9e90e72df9c2375280a6c06416dfe254f08cf906`. All nine packaged source-file hashes match that commit. The public repository contained 35 tracked files at this version checkpoint; local and remote source were verified to match. The release ZIP, checksum file, and build report all have matching GitHub asset digests.
+
+The [application-check workflow](https://github.com/C1S9/career-planning-assistant/actions/runs/39782805448) and [tagged Windows-release workflow](https://github.com/C1S9/career-planning-assistant/actions/runs/39783627198) both completed successfully. The latter rebuilt and smoke-tested the Windows app, stored a workflow artifact, and kept the already published release files unchanged.
+
+The released ZIP has 2,165 scanned members and no configured-key or private-path findings. One live learning-mentor request with fictional context returned a valid three-day plan. Browser checks covered mentor selection, native Light/Dark controls, and the actual exe's UI with developer deployment controls hidden. This closes the requested technical update, not a learner-led review of every mentor or a Devpost submission.

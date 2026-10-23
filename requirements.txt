@@ -2,3 +2,4 @@
 streamlit==1.66.0
 openai==3.35.1
 pydantic==2.14.1
+httpx2==2.15.1

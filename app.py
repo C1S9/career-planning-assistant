@@ -10,6 +10,8 @@ from agent import ChatError, DEFAULT_MODEL, MAX_MESSAGE_CHARS, generate_plan, re
 from mentors import DEFAULT_MENTOR, MENTORS, get_mentor
 from models import MAX_PLAN_DAYS, MIN_PLAN_DAYS, PlanValidationError, format_plan, validate_duration
 from version import APP_NAME, __version__
+from coaching_skills import active_skill_names
+from search_topics import REGIONS
 
 st.set_page_config(
     page_title=APP_NAME, page_icon=":material/explore:", layout="centered",
@@ -41,6 +43,7 @@ def new_conversation(mentor_id: str | None = None) -> None:
     st.session_state.request_kind = "chat"
     st.session_state.request_days = None
     st.session_state.plan_duration = 7
+    st.session_state.failed_evidence = None
 
 
 def queue_message(content: str, *, kind: str = "chat", days: int | None = None) -> None:
@@ -49,6 +52,7 @@ def queue_message(content: str, *, kind: str = "chat", days: int | None = None) 
     validate_history(candidate)
     st.session_state.messages = candidate
     st.session_state.reply_error = None
+    st.session_state.failed_evidence = None
     st.session_state.request_token = uuid4().hex
     st.session_state.request_kind = kind
     st.session_state.request_days = days
@@ -64,6 +68,20 @@ def use_session_connection() -> None:
         st.session_state.connection_notice = "API key is available for this session."
     else:
         st.session_state.connection_notice = "Existing local settings will be used when available."
+
+
+def show_evidence(record: dict) -> None:
+    """Render application-owned retrieval records separately from generated text."""
+    if record.get("status") == "ready":
+        with st.expander("Sources consulted", icon=":material/travel_explore:"):
+            st.caption("Primary-source excerpts retrieved before this reply. This does not verify every claim or personal suitability.")
+            st.caption(f"Search topic: {record['query']} · Retrieved: {record['checked_at']} (UTC)")
+            for source in record["sources"]:
+                st.link_button(f"[{source['id']}] {source['title']}", source["url"])
+                st.caption(f"Publication date reported by search: {source.get('published_date') or 'Unknown'}")
+                st.text(source["excerpt"])
+    else:
+        st.warning(record.get("note") or "Suitable primary sources were not available. No source-grounded recommendation was generated.")
 
 
 st.session_state.setdefault("mentor_choice", DEFAULT_MENTOR)
@@ -118,6 +136,7 @@ with st.sidebar:
             step=1, key="plan_duration", disabled=awaiting_reply,
         )
         st.caption("Share your situation first, then turn the conversation into practical tasks.")
+        st.caption("Planning also uses the realistic-action-planning skill.")
         has_background = any(message["role"] == "user" for message in st.session_state.messages)
         if st.button("Create checked plan", type="primary", width="stretch", disabled=not configured or awaiting_reply or not has_background):
             try:
@@ -132,6 +151,12 @@ with st.sidebar:
                 st.rerun()
     st.caption("Switch light or dark from the top-right app menu.")
     st.caption("General coaching. Your choices remain yours.")
+    with st.expander("Sources and skills", icon=":material/travel_explore:"):
+        st.selectbox("Source region", REGIONS, key="source_region", disabled=awaiting_reply,
+                     help="Optional. A source's country does not establish which rules apply to you.")
+        st.caption("Before advice, the app searches primary sources through DeepSeek using a general topic, not your full message. Search may add API charges.")
+        st.caption("Selected region applies to new requests. Source relevance and factual accuracy still need judgment.")
+        st.caption("Active coaching skills: " + ", ".join(active_skill_names(selected, planning=False)))
 
 st.title("Find your next step")
 st.write(mentor.description)
@@ -142,11 +167,15 @@ if not configured:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if message.get("schedule_checked"):
-            st.caption("Task fields and schedule checked. Suitability still needs your judgment.")
+            st.caption("Task fields and schedule checked. Source identities checked; facts and suitability still need judgment.")
         st.markdown(message["content"])
+        if message.get("evidence"):
+            show_evidence(message["evidence"])
 
 if awaiting_reply and not request_now:
     st.error(st.session_state.reply_error or "Your last message has no reply yet. Retry when you are ready.")
+    if st.session_state.get("failed_evidence"):
+        show_evidence(st.session_state.failed_evidence)
     if st.button("Retry Reply", disabled=not configured):
         st.session_state.reply_error = None
         st.session_state.request_token = uuid4().hex
@@ -169,25 +198,32 @@ if request_now and awaiting_reply:
     token = st.session_state.request_token
     selected_mentor = st.session_state.active_mentor
     checked = False
+    research_records = []
     try:
-        with st.spinner("Working through your next step..."):
+        with st.spinner("Checking primary sources, then working through your next step..."):
             if st.session_state.request_kind == "plan":
                 plan = generate_plan(
                     list(st.session_state.messages), duration_days=st.session_state.request_days,
                     api_key=api_key, model=model, mentor_id=selected_mentor,
+                    source_region=st.session_state.source_region, on_evidence=research_records.append,
                 )
                 answer = format_plan(plan)
                 checked = True
             else:
-                answer = reply(list(st.session_state.messages), api_key=api_key, model=model, mentor_id=selected_mentor)
+                answer = reply(list(st.session_state.messages), api_key=api_key, model=model, mentor_id=selected_mentor,
+                               source_region=st.session_state.source_region, on_evidence=research_records.append)
     except ChatError as error:
         if token == st.session_state.request_token:
             st.session_state.reply_error = str(error)
+            st.session_state.failed_evidence = research_records[-1].to_dict() if research_records else None
     except Exception:
         if token == st.session_state.request_token:
             st.session_state.reply_error = "The reply could not be completed. Please retry or start a new conversation."
+            st.session_state.failed_evidence = None
     else:
         if token == st.session_state.request_token:
-            st.session_state.messages.append({"role": "assistant", "content": answer, "schedule_checked": checked})
+            st.session_state.messages.append({"role": "assistant", "content": answer, "schedule_checked": checked,
+                                             "evidence": research_records[-1].to_dict() if research_records else None})
             st.session_state.reply_error = None
+            st.session_state.failed_evidence = None
     st.rerun()

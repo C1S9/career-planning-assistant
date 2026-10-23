@@ -372,3 +372,8 @@ The build script first verifies the actual frozen program with external Python r
 Twenty-nine simulated-response tests passed. One additional real learning-mentor plan used fictional spreadsheet-learning context and returned a validated three-day, three-task plan. The desktop smoke check covered Tk initialization, plan validation, server readiness, a real frontend asset, and UI script execution. These checks have different meanings; none certifies all personal guidance.
 
 The maintainer reviews source and secret exclusions before synchronization. GitHub Actions tests incoming changes; matching version tags build a Windows package and publish a release without overwriting existing release assets. Manual workflow runs produce artifacts. No background process watches the user's files and commits arbitrary edits.
+
+
+## Version 0.3.0: retrieval and practical skills
+
+Read [Evidence and skills](EVIDENCE_AND_SKILLS.md) for the new request flow, privacy-preserving queries, real source records, citation identity checks, runtime skill loading, and the limits of automated verification. The implementation comments remain English.

@@ -12,12 +12,18 @@ from streamlit.testing.v1 import AppTest
 from agent import ChatError, generate_plan, reply
 from mentors import MENTORS, get_mentor
 from plan_fixtures import plan_data
+from evidence_fixtures import ready_evidence
 
 APP = Path(__file__).resolve().parents[1] / "app.py"
 
 
 class MentorRequestTests(unittest.TestCase):
-    @patch("agent._complete", return_value="Let's choose a manageable next step.")
+    def setUp(self):
+        research = patch("agent.retrieve_evidence", return_value=ready_evidence())
+        research.start()
+        self.addCleanup(research.stop)
+
+    @patch("agent._complete", return_value="Let's choose a manageable next step [S1].")
     def test_each_mentor_reaches_the_chat_system_message(self, complete):
         messages = [{"role": "user", "content": "Help me clarify my next step."}]
         for mentor_id, mentor in MENTORS.items():
@@ -30,7 +36,9 @@ class MentorRequestTests(unittest.TestCase):
 
     @patch("agent._complete")
     def test_checked_plans_use_the_selected_mentor_and_period(self, complete):
-        complete.return_value = json.dumps(plan_data())
+        data = plan_data()
+        data["summary"] += " [S1]"
+        complete.return_value = json.dumps(data)
         generate_plan([{"role": "user", "content": "I can study for 30 minutes a day."}], duration_days=3, api_key="test-key", mentor_id="learning")
         instruction = complete.call_args.args[0][0]["content"]
         self.assertIn(MENTORS["learning"].instructions, instruction)

@@ -8,9 +8,10 @@ from openai import APIConnectionError, APIStatusError
 
 from agent import BASE_URL, ChatError, MAX_HISTORY_CHARS, reply, validate_history
 from prompts import SYSTEM_PROMPT
+from evidence_fixtures import ready_evidence
 
 
-def result(content="What would you like to change about your work?", finish="stop"):
+def result(content="What would you like to change about your work? [S1]", finish="stop"):
     return SimpleNamespace(
         choices=[SimpleNamespace(finish_reason=finish, message=SimpleNamespace(content=content))]
     )
@@ -18,6 +19,9 @@ def result(content="What would you like to change about your work?", finish="sto
 
 class ChatBoundaryTests(unittest.TestCase):
     def setUp(self):
+        research = patch("agent.retrieve_evidence", return_value=ready_evidence())
+        research.start()
+        self.addCleanup(research.stop)
         self.messages = [
             {"role": "user", "content": "I studied business."},
             {"role": "assistant", "content": "What work have you done?"},
@@ -30,7 +34,7 @@ class ChatBoundaryTests(unittest.TestCase):
         client.chat.completions.create.return_value = result()
         answer = reply(self.messages, api_key="test-key")
         kwargs = client.chat.completions.create.call_args.kwargs
-        self.assertEqual(kwargs["messages"][0], {"role": "system", "content": SYSTEM_PROMPT})
+        self.assertTrue(kwargs["messages"][0]["content"].startswith(SYSTEM_PROMPT))
         self.assertEqual(kwargs["messages"][1:], self.messages)
         self.assertEqual(factory.call_args.kwargs["base_url"], BASE_URL)
         self.assertEqual(factory.call_args.kwargs["max_retries"], 0)

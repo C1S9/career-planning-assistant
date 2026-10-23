@@ -11,9 +11,13 @@ from openai import APIConnectionError
 from agent import ChatError, generate_plan
 from models import PlanValidationError, format_plan, parse_plan
 from plan_fixtures import plan_data
+from evidence_fixtures import ready_evidence
 
 
 def completion(data):
+    if isinstance(data, dict):
+        data = deepcopy(data)
+        data["summary"] += " [S1]"
     raw = data if isinstance(data, str) else json.dumps(data)
     return SimpleNamespace(choices=[
         SimpleNamespace(finish_reason="stop", message=SimpleNamespace(content=raw))
@@ -76,6 +80,9 @@ class PlanRulesTests(unittest.TestCase):
 
 class PlanWorkflowTests(unittest.TestCase):
     def setUp(self):
+        research = patch("agent.retrieve_evidence", return_value=ready_evidence())
+        research.start()
+        self.addCleanup(research.stop)
         self.messages = [{"role": "user", "content": "I studied business, work in retail, and want a short plan."}]
 
     @patch("agent.OpenAI")

@@ -15,6 +15,7 @@ class ChatMessage(TypedDict):
     role: Literal["user", "assistant"]
     content: str
     schedule_checked: NotRequired[bool]
+    evidence: NotRequired[dict | None]
 
 
 class PlanValidationError(ValueError):

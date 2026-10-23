@@ -1,12 +1,12 @@
 # Life Direction Agent
 
-**Version 0.2.0** · English coaching conversations · DeepSeek · Windows portable app
+**Version 0.3.0** · English coaching conversations · DeepSeek · Windows portable app
 
-A conversational app with five mentor presets and explicit, independently checked action plans. Choose the area you want to work on, explain your situation, and turn the conversation into manageable next steps.
+A conversational app with five mentor presets, live primary-source retrieval before advice, three practical runtime coaching skills, and explicitly checked action plans. Choose the area you want to work on, explain your situation, and turn the conversation into manageable next steps.
 
 ## Windows: download and run
 
-Open the [v0.2.0 release](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.2.0), download `LifeDirectionAgent-v0.2.0-windows-x64.zip`, extract the entire folder, and double-click `LifeDirectionAgent.exe`. Keep `_internal` beside the exe. The launcher opens the app in your default browser; **Quit** stops its local server.
+Open the [v0.3.0 release](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.3.0), download `LifeDirectionAgent-v0.3.0-windows-x64.zip`, extract the entire folder, and double-click `LifeDirectionAgent.exe`. Keep `_internal` beside the exe. The launcher opens the app in your default browser; **Quit** stops its local server.
 
 You do not install Python, Node.js, or Streamlit, and you do not deploy a server. Internet access and your own authorized DeepSeek API key are still required for model replies. No owner's key or prepaid API access is included. See [Windows quick start](docs/WINDOWS_QUICKSTART.md) for connection, launch, and troubleshooting instructions.
 
@@ -34,6 +34,12 @@ For source runs, copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.t
 
 The compatible Python client contacts [DeepSeek](https://api-docs.deepseek.com/) at `https://api.deepseek.com`. The default model is `deepseek-flash`; model access and API balance belong to the account whose key is used.
 
+## Consult sources before advice
+
+Every advice request searches through DeepSeek using a fixed general topic, filters for relevant primary-source page content, and checks that source identifiers and links match actual results. Open **Sources consulted** below a reply to see real links, excerpts, the search topic, retrieval time, and publication dates reported by search. **Sources and skills** offers an optional country selection. If retrieval fails, the app clarifies instead of generating ungrounded advice, and does not create a checked plan. Search may add API charges.
+
+The application loads `evidence-informed-coaching`, the selected section of `mentor-decision-workflow`, and, for plans, `realistic-action-planning`. These files actually reach model instructions; Python performs the network search. See [Evidence and skills](docs/EVIDENCE_AND_SKILLS.md) for the flow, privacy choices, coverage limits, and learning map. Source identity checks are not automatic fact-checking.
+
 ## Create a checked action plan
 
 1. Describe your situation and constraints in the chat.
@@ -41,7 +47,7 @@ The compatible Python client contacts [DeepSeek](https://api-docs.deepseek.com/)
 3. The result must have 3–8 tasks, required text fields, a day-1 start, ordered start days, and dates inside the saved selection.
 4. A passing result is marked **Task fields and schedule checked**. The label does not certify personal suitability, current opportunities, or outcomes.
 
-The selected mentor and current conversation reach the JSON request. A structural failure permits one correction, for at most two provider calls per click. Provider connection/account errors and incomplete output stop immediately. Explicit retry preserves the original user turn and duration; unrelated page reruns and theme changes do not authorize another request. Ordinary chat has no validation label.
+The selected mentor and current conversation reach the JSON request. A field, schedule, or source-reference failure permits one correction, for at most two model calls per plan click. Retrieval adds at most two Search API requests and is shared across a plan correction. Provider connection/account errors and incomplete output stop immediately. Explicit retry preserves the original user turn and duration; unrelated page reruns and theme changes do not authorize another request. Ordinary chat has no validation label.
 
 ## Run from source on Windows
 
@@ -78,11 +84,11 @@ GitHub Actions runs application checks on pushes and pull requests. A matching `
 - `models.py`: task fields, schedule checks, and readable output. The internal `CareerPlan` type is retained for compatibility; the visible output is now an action plan for any mentor.
 - `desktop.py`: native launcher and a loopback-only Streamlit server using the public `st.App.run` API.
 - `packaging/` and `scripts/build_windows.py`: reproducible Windows packaging and smoke checks.
-- [Learning guide](docs/LEARNING_GUIDE.md), [offline app map](devpost/app-map.html), and [release notes](docs/releases/v0.2.0.md).
+- [Learning guide](docs/LEARNING_GUIDE.md), [offline app map](devpost/app-map.html), and [release notes](docs/releases/v0.3.0.md).
 
 ## Evidence and remaining work
 
-Twenty-nine provider-independent checks passed for the updated app. Separately, one live learning-mentor request using fictional spreadsheet-learning context returned a three-day, three-task plan that passed the real field and schedule validator. This single live check does not certify every mentor's advice quality. Earlier learner-reported chat and checked-plan successes belong to the initial demo.
+Fifty-seven provider-independent checks passed for v0.3.0, including retrieval failures, privacy, source identities, runtime skills, mentor isolation, and task schedules. Live fictional-context checks returned a cited career reply, a three-day/three-task plan accepted by the real validators, and Chinese official-domain search results. These checks do not certify every mentor’s advice quality. Earlier learner-reported successes belong to the initial demo.
 
 The Windows package passed its isolated bundled smoke check. See the release build report for the final artifact details. This is a locally running application with a public source repository; a hosted service, background updater, completed demo video, and Devpost submission are not included.
 

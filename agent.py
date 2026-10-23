@@ -1,6 +1,6 @@
 """DeepSeek calls, response validation, and safe application errors."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 import json
 
 from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
@@ -8,6 +8,9 @@ from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 from models import CareerPlan, ChatMessage, PlanValidationError, parse_plan, validate_duration
 from mentors import DEFAULT_MENTOR
 from prompts import plan_system_prompt, system_prompt
+from evidence import EvidenceBundle, retrieve_evidence
+from references import ReferenceError, validate_references
+from search_topics import search_topic
 
 # The destination is DeepSeek, even though the compatible client is named OpenAI.
 BASE_URL = "https://api.deepseek.com"
@@ -45,6 +48,8 @@ def validate_history(messages: Sequence[ChatMessage]) -> None:
 def reply(
     messages: Sequence[ChatMessage], *, api_key: str, model: str = DEFAULT_MODEL,
     mentor_id: str = DEFAULT_MENTOR,
+    source_region: str = "Not specified",
+    on_evidence: Callable[[EvidenceBundle], None] | None = None,
 ) -> str:
     """Return one complete DeepSeek reply, or raise a safe ChatError."""
     # Validate here as well as in the page so this module is safe to reuse.
@@ -58,10 +63,26 @@ def reply(
         instruction = system_prompt(mentor_id)
     except ValueError as error:
         raise ChatError(str(error)) from None
+    evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
+                         source_region=source_region, on_evidence=on_evidence)
+    if evidence.status != "ready":
+        # Search failure cannot silently become apparently researched advice.
+        return (
+            "I could not retrieve suitable primary sources for this reply, so I cannot "
+            "offer source-grounded advice yet. No recommendation has been verified. "
+            "You can retry, choose a source region, or clarify your concern. "
+            "What decision would you most like help clarifying?"
+        )
+    instruction += "\n" + evidence.as_prompt()
     payload = [{"role": "system", "content": instruction}]
     payload.extend({"role": item["role"], "content": item["content"]} for item in messages)
 
-    return _complete(payload, api_key=api_key, model=model)
+    answer = _complete(payload, api_key=api_key, model=model)
+    try:
+        validate_references(answer, evidence)
+    except ReferenceError:
+        raise ChatError("The reply did not pass its source-reference checks. Your message is saved; you can retry.") from None
+    return answer
 
 
 def generate_plan(
@@ -71,6 +92,8 @@ def generate_plan(
     api_key: str,
     model: str = DEFAULT_MODEL,
     mentor_id: str = DEFAULT_MENTOR,
+    source_region: str = "Not specified",
+    on_evidence: Callable[[EvidenceBundle], None] | None = None,
 ) -> CareerPlan:
     """Generate, check, and at most once regenerate a structured task plan."""
     validate_history(messages)
@@ -83,9 +106,17 @@ def generate_plan(
         mentor_instruction = plan_system_prompt(mentor_id)
     except ValueError as error:
         raise ChatError(str(error)) from None
+    if not api_key.strip():
+        raise ChatError("Chat is not configured yet. Complete the local setup to begin.")
+    evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
+                         source_region=source_region, on_evidence=on_evidence)
+    if evidence.status != "ready":
+        raise ChatError("Suitable primary sources could not be retrieved. A source-grounded plan was not generated. Retry or clarify your concern.")
     schema = json.dumps(CareerPlan.model_json_schema(), ensure_ascii=True)
     instruction = (
         mentor_instruction
+        + "\n" + evidence.as_prompt()
+        + "\nCite at least one current source ID, such as [S1], in a relevant task reason or summary."
         + f"\nThe selected planning period is exactly {duration_days} days."
         + "\nThe first task starts on day 1. Sort tasks by start day."
         + " All end days must fit the selected period."
@@ -110,17 +141,31 @@ def generate_plan(
         payload.extend({"role": item["role"], "content": item["content"]} for item in messages)
         raw = _complete(payload, api_key=api_key, model=model, json_mode=True)
         try:
-            return parse_plan(raw, expected_days=duration_days)
-        except PlanValidationError as error:
+            plan = parse_plan(raw, expected_days=duration_days)
+            validate_references(plan.model_dump_json(), evidence)
+            return plan
+        except (PlanValidationError, ReferenceError) as error:
             if attempt == 1:
                 raise ChatError(
-                    "The plan did not pass its field and schedule checks after one correction. "
+                    "The plan did not pass its field, schedule, and source-reference checks after one correction. "
                     "Your message is saved; you can retry."
                 ) from None
             # This feedback contains fixed rule descriptions, not invalid output
             # or private input values from a validation exception.
             feedback = "\nThe previous attempt failed validation: " + str(error) + ". Generate a corrected JSON plan."
     raise ChatError("The plan could not be completed.")
+
+
+def _research(messages, *, api_key, mentor_id, source_region, on_evidence):
+    """Always retrieve before advice; share one result across a plan correction."""
+    try:
+        query = search_topic(messages, mentor_id, source_region)
+    except ValueError as error:
+        raise ChatError(str(error)) from None
+    evidence = retrieve_evidence(query, api_key=api_key, mentor_id=mentor_id)
+    if on_evidence is not None:
+        on_evidence(evidence)
+    return evidence
 
 
 def _complete(

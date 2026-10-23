@@ -6,14 +6,17 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
 root = Path(SPECPATH).parent
-public_modules = ("app.py", "agent.py", "models.py", "prompts.py", "mentors.py", "version.py")
+public_modules = ("app.py", "agent.py", "models.py", "prompts.py", "mentors.py", "version.py",
+                  "evidence.py", "references.py", "search_topics.py", "coaching_skills.py")
 datas = [(str(root / name), "application") for name in public_modules]
 datas += [(str(root / ".streamlit/config.toml"), "application/.streamlit")]
+for name in ("evidence-informed-coaching", "mentor-decision-workflow", "realistic-action-planning"):
+    datas.append((str(root / "skills" / name / "SKILL.md"), "application/skills/" + name))
 datas += collect_data_files("streamlit", includes=["static/**"])
 datas += copy_metadata("streamlit", recursive=True)
 datas += copy_metadata("openai", recursive=True)
 
-hiddenimports = ["agent", "models", "prompts", "mentors", "version"]
+hiddenimports = ["agent", "models", "prompts", "mentors", "version", "evidence", "references", "search_topics", "coaching_skills"]
 hiddenimports += collect_submodules("streamlit", filter=lambda name: not name.startswith(("streamlit.testing", "streamlit.hello")))
 hiddenimports += [
     "uvicorn.logging", "uvicorn.loops.auto", "uvicorn.loops.asyncio",

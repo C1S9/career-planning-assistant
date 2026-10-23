@@ -134,6 +134,13 @@ def self_test(data_directory: Path) -> dict:
     """Exercise bundled code, frontend assets, and the script with no paid call."""
     from mentors import MENTORS
     from models import PlanValidationError, parse_plan
+    from coaching_skills import active_skill_names, load_skill_instructions
+    from evidence import trusted_domain
+    for mentor_id in MENTORS:
+        if not load_skill_instructions(mentor_id, planning=True):
+            raise RuntimeError("Bundled coaching skills could not be loaded.")
+    if trusted_domain("https://127.0.0.1/private") is not None:
+        raise RuntimeError("Bundled source filtering failed.")
     import tkinter as tk
     probe = tk.Tk()
     probe.withdraw()
@@ -163,7 +170,7 @@ def self_test(data_directory: Path) -> dict:
         if not read_local(asset):
             raise RuntimeError("The bundled frontend asset was empty.")
         read_local(url + "/_stcore/script-health-check", timeout=30)
-        return {"ok": True, "version": __version__, "mentor_count": len(MENTORS), "native_launcher": "passed", "plan_validation": "passed", "server_health": "passed", "frontend_asset": "passed", "app_script": "passed", "paid_api_requests": 0}
+        return {"ok": True, "version": __version__, "mentor_count": len(MENTORS), "skill_count": len(active_skill_names("career", planning=True)), "bundled_skills": "passed", "source_filter": "passed", "native_launcher": "passed", "plan_validation": "passed", "server_health": "passed", "frontend_asset": "passed", "app_script": "passed", "paid_api_requests": 0}
     finally:
         stop_server(child)
 

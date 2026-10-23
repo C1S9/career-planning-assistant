@@ -1,10 +1,10 @@
 # Life Direction Agent — Windows Quick Start
 
-Version 0.2.0 · Windows x64 · Portable application
+Version 0.3.0 · Windows x64 · Portable application
 
 ## Open the app
 
-1. Download `LifeDirectionAgent-v0.2.0-windows-x64.zip` from the GitHub Release.
+1. Download `LifeDirectionAgent-v0.3.0-windows-x64.zip` from the GitHub Release.
 2. Extract the entire ZIP to a folder you can write to. Do not run it from inside the ZIP.
 3. Double-click `LifeDirectionAgent.exe`. Keep its `_internal` folder beside it.
 4. The launcher opens the app in your default browser. Its server listens only on `127.0.0.1`.
@@ -27,6 +27,10 @@ No owner's key or prepaid model access is included in the release. API charges b
 - **Communication & relationships:** clearer conversations and boundaries.
 
 Changing mentors starts a fresh conversation. **New Conversation** resets the current mentor's thread. Conversations are session-only; there is no account or persistent chat database.
+
+## Sources and skills
+
+Advice first searches primary sources through DeepSeek using a general topic. Open **Sources consulted** below each reply to inspect actual links and excerpts. **Sources and skills** offers an optional source region and shows the active runtime skills. Search may incur extra provider charges. If no suitable source content is found, the app asks a clarification and does not generate a checked plan. Retrieved sources and checked identifiers do not prove every claim or personal suitability.
 
 ## Make a checked action plan
 

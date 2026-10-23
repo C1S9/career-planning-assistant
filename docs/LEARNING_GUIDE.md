@@ -1,206 +1,250 @@
-# Build and Understand Life Direction Agent
+# Learn How Life Direction Agent Works
 
-Version 0.4.0 learning guide. Project code, UI descriptions, and comments use English. This guide describes the implemented application, including the permission gateway; historical first-demo instructions are not current feature evidence.
+Follow version 0.4.0 from a message to a reply or checked plan. The exercises use fictional inputs and need no API key. Code, comments, and interface text are in English.
 
-## 1. The stack and its responsibilities
+Start with the [project README](../README.md) for installation or the [documentation index](README.md) for other guides.
 
-| Technology | Pinned or observed version | Responsibility |
-| --- | --- | --- |
-| Python | 3.15.0 in the verified environment | Application and orchestration code |
-| Streamlit | 1.66.0 | Chat page, sidebar controls, forms, session state, themes |
-| OpenAI-compatible Python client | 3.35.1 | DeepSeek model transport |
-| DeepSeek | Configured model defaults to `deepseek-flash` | Remote search and language-model inference |
-| HTTPX2 | 2.15.1 | Explicit search transport and model HTTP client |
-| Pydantic | 2.14.1 | Strict task fields, JSON parsing, schedule checks |
-| Markdown runtime skills | Three public files | Coaching and planning instructions loaded by Python |
-| Tkinter | Bundled Python toolkit | Desktop launcher window |
-| PyInstaller | 6.22.3 | Portable Windows package with Python and frontend assets |
-| unittest, Mock, Streamlit AppTest | Project tests | Offline application and UI checks |
-| Git and GitHub Actions | Repository workflow | Source history, checks, tagged release builds |
+## 1. Set up a source checkout
 
-The permission gateway is local Python code, not a new framework or a trained model. It adds checks before existing tool execution. The project does not use LangChain or LangGraph, and does not create a team of independent model agents.
-
-## 2. Set up and run the source
-
-Use the existing project environment if it is already configured. Do not paste secrets into commands or public screenshots.
+Open PowerShell in the folder where you want to keep the project:
 
 ```powershell
-Set-Location -LiteralPath 'D:\layerdesign'
-.\.venv\Scripts\python.exe --version
+git clone https://github.com/C1S9/career-planning-assistant.git
+Set-Location -LiteralPath '.\career-planning-assistant'
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m streamlit run app.py --server.address localhost
 ```
 
-For a new checkout, create `.venv` and install the pinned direct dependencies:
+For an existing checkout, open its folder and reuse its environment. The `.venv` path selects the interpreter without activation. Stop with Ctrl+C. For live requests, connect your own DeepSeek key as described in the README. Keep keys out of commands and screenshots.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
+The Windows release bundles Python and needs no source setup.
 
-The explicit `.venv` Python path selects the project interpreter without needing a separate activation command. Stop a source server with Ctrl+C. The desktop release bundles an interpreter and does not need these setup steps.
+## 2. What the stack does
 
-## 3. Know what each file owns
+Pinned dependencies and the recorded v0.4.0 environment:
 
-| File | Responsibility |
+| Technology | Version or configuration | Role |
+| --- | --- | --- |
+| Python | 3.15.0 in the verified environment | Application logic |
+| Streamlit | 1.66.0 | Chat page, sidebar, forms, session state, themes |
+| OpenAI-compatible Python client | 3.35.1 | Sends model requests to DeepSeek |
+| DeepSeek | Default model: `deepseek-flash` | Remote search and model inference |
+| HTTPX2 | 2.15.1 | HTTP transport for search and model calls |
+| Pydantic | 2.14.1 | Parses plan JSON and validates fields and schedules |
+| Markdown runtime skills | Three public files | Coaching and planning instructions |
+| Tkinter | Bundled Python toolkit | Desktop launcher window |
+| PyInstaller | 6.22.3 | Packages Python and frontend assets for Windows |
+| unittest, Mock, Streamlit AppTest | Project tests | Offline application and UI checks |
+| Git and GitHub Actions | Repository workflow | Source history, checks, release builds |
+
+The Python permission gateway checks whether a tool call may start. The app uses direct calls, without LangChain or LangGraph. Mentors share one backend; they are not independent model agents.
+
+## 3. Find your way around the code
+
+| File | Read it to understand… |
 | --- | --- |
-| `app.py` | Draw controls, retain session state, queue explicit user requests, display sources and audit metadata |
-| `agent.py` | Validate chat, orchestrate retrieval and generation, map safe errors, bound plan correction |
-| `permissions.py` | Tool policies, delegated capabilities, fixed resources, call reservations, expiry, revocation, audit metadata |
-| `evidence.py` | Search transport and primary-source result filtering |
-| `search_topics.py` | General search vocabulary and optional region choices |
-| `references.py` | Current source-ID and generated URL identity checks |
+| `app.py` | Controls, session state, queued requests, sources, and activity display |
+| `agent.py` | Chat validation, search and generation, error handling, and plan correction |
+| `permissions.py` | Tool policies, delegated scopes, call limits, expiry, revocation, and audit metadata |
+| `evidence.py` | Search requests and primary-source filtering |
+| `search_topics.py` | Fixed search vocabulary and optional regions |
+| `references.py` | Checks that source IDs and generated URLs match current results |
 | `mentors.py` | Five immutable mentor presets |
-| `prompts.py` | Compose shared, mentor, skill, and plan instructions |
-| `coaching_skills.py` | Load the selected skill sections from public Markdown files |
-| `models.py` | Strict plan data, schedule validation, readable plan formatting |
-| `desktop.py` | Own a loopback server and browser launch; run the offline bundled self-test |
-| `packaging/windows.spec` | Explicit public resources and hidden imports for PyInstaller |
-| `scripts/build_windows.py` | Build, isolated smoke check, source manifest, notices, ZIP, checksum |
+| `prompts.py` | How shared, mentor, skill, and plan instructions are combined |
+| `coaching_skills.py` | Loading selected sections of public Markdown skills |
+| `models.py` | Plan fields, schedule rules, and readable output |
+| `desktop.py` | Local server, browser launch, and bundled offline self-test |
+| `packaging/windows.spec` | Public resources and hidden imports included by PyInstaller |
+| `scripts/build_windows.py` | Build, isolated smoke check, manifest, notices, ZIP, and checksum |
 | `.streamlit/config.toml` | Native light/dark appearance and public UI settings |
-| `.streamlit/secrets.toml.example` | Placeholder private-setting format, never a real key |
-| `tests/` | Reproducible application behavior checks |
-| `.github/workflows/` | Test and Windows-release automation |
+| `.streamlit/secrets.toml.example` | Placeholder format for local private settings |
+| `tests/` | Repeatable behavior checks |
+| `.github/workflows/` | Automated tests and Windows builds |
 
-The internal model name `CareerPlan` remains for compatibility. Its output is a general action plan for the selected mentor.
+The type name `CareerPlan` is retained for compatibility. It now represents an action plan for any selected mentor.
 
-## 4. Trace one message
+## 4. Follow one message
+
+For this fictional example, select **Learning & skills** and send: “I want to practise Python for 20 minutes each evening.”
 
 ```mermaid
 flowchart TD
-    A[User submits a message] --> B[Validate and save one turn]
-    B --> C[Capture request and settings]
-    C --> D[Issue bounded permission]
-    D --> E[Delegate research capability]
-    E --> F[Check then start search]
-    F --> G[Filter evidence]
-    G --> H[Compose instructions and context]
-    H --> I[Check then start model completion]
-    I --> J[Validate response and references]
-    J --> K[Display answer and actual source records]
-    K --> L[Revoke permission]
+    A[Submit a message] --> B[Validate and save the turn]
+    B --> C[Capture settings and issue a request grant]
+    C --> D[Delegate search permission]
+    D --> E[Check permission and search]
+    E --> F{Usable evidence?}
+    F -->|Yes| G[Combine instructions, evidence, and chat history]
+    G --> H[Check permission and call the model]
+    H --> I[Validate the response and references]
+    I --> J[Display the reply and source records]
+    F -->|No| K[Return a clarification without a model call]
+    J --> L[Revoke the request grant]
+    K --> L
 ```
 
-Read the real path in `app.py`, `agent.reply`, `agent._research`, `evidence.retrieve_evidence`, and `agent._complete`. An evidence failure returns a clarification instead of pretending the application researched a recommendation. Plan generation requires usable evidence.
+Trace `app.py`, `agent.reply`, `agent._research`, `evidence.retrieve_evidence`, and `agent._complete`. Plans also require usable evidence; otherwise generation stops with an error.
 
-A request grant is revoked in a `finally` block, so errors cannot leave authority intended for a completed turn available. UI request identifiers separately prevent an older result from entering a new conversation.
+Errors also revoke the grant through `finally`. A request identifier prevents an older conversation's reply appearing in a new one.
 
-## 5. Streamlit reruns and session memory
+## 5. Why Streamlit needs session state
 
-Streamlit can execute the page script again after a widget interaction. Normal Python variables are recreated; `st.session_state` keeps values across these executions for that connected browser session.
+Streamlit reruns the page script after many widget interactions. Ordinary variables are recreated; `st.session_state` keeps values for that connected browser session.
 
-Messages, selected mentor, queued request state, credentials pasted for this session, and audit data live in Python process memory associated with the session. This is neither model training nor a permanent browser database. Session loss may remove the data.
+Messages, selected mentor, queued requests, session credentials, and audit data live in Python process memory. This is neither model training nor a permanent browser database. Session loss may remove the data.
 
-The application grants a request only after an explicit send, plan, or retry. Rendering saved messages, changing a theme, or redrawing controls does not authorize a new provider request. A consumed queue flag prevents unrelated reruns from repeating the operation.
+Find `queued` in `app.py`. Send, plan, and retry actions queue an operation. Consuming that flag prevents unrelated reruns from repeating provider calls. Redrawing messages or changing themes grants no new request permission.
 
-## 6. Understand the model call
+## 6. How a model request is assembled
 
-`agent.py` sets the OpenAI-compatible client destination to `https://api.deepseek.com`; the library name does not choose the provider. The request includes system instructions plus the actual conversation history. Prior turns must be sent again for the model to use that context.
+`agent.py` directs the `openai` client library to DeepSeek at `https://api.deepseek.com`.
 
-The client has a 60-second timeout, disables automatic SDK retries, disables redirect following and inherited proxy settings, and waits for a complete response. The response must have a choice, a completed finish reason, and nonempty text. Provider details are mapped into safe, fixed UI messages rather than displayed verbatim.
+Requests contain system instructions and conversation history. Earlier turns must be resent to provide context. The app waits for a complete response without streaming partial text.
 
-Generated text is untrusted output. It can be incomplete, factually wrong, or personally unsuitable even after a successful HTTP response. Validation checks only the properties implemented by the validators.
+The client uses a 60-second timeout, disables automatic SDK retries, and disables redirects and inherited proxy settings. A usable response must contain a choice, the finish reason `stop`, and nonempty text. Provider failures become fixed, readable UI messages instead of raw error details.
 
-## 7. Search, evidence, and citations
+Successful transport means a response arrived. Advice can still be wrong or unsuitable; validators check only the properties described below.
 
-`search_topics.py` chooses a fixed general topic from limited keyword rules. It avoids copying the full conversation into a query. This privacy choice also limits specificity and multilingual coverage; it is not an anonymization model.
+## 7. From a private question to public search topics
 
-Search calls use `https://api.deepseek.com/v1/tools/search` with page content requested. `evidence.py` filters source publishers, HTTPS URLs, content availability, relevance signals, dates, duplicates, and bounded excerpts. The application retains up to three sources rather than passing unlimited web content to the model.
+`search_topics.py` selects fixed topics using keyword rules. Try this in the project Python interpreter:
 
-The source panel is constructed from application-held records: actual URL, title, excerpt, retrieval time, and publication date if reported. `references.py` rejects recognizable source markers and generated URLs that do not match current records. It does not prove that every sentence accurately represents the cited source.
+```python
+from search_topics import search_topic
 
-Returned webpage text remains data. It has no grant-creation or policy-registration interface. The gateway keeps a model-generated destination or authority request from becoming an approved tool operation.
+messages = [{"role": "user", "content": "I want to practise Python each evening."}]
+print(search_topic(messages, "learning"))
+# learning programming practice
+```
 
-See [Evidence and skills](EVIDENCE_AND_SKILLS.md) for source coverage and its limits.
+This local function does not search. It adds a region only when selected. Fixed vocabulary keeps full conversations out of queries but limits specificity and language coverage. It is not an anonymization model.
 
-## 8. Mentor presets and runtime skills
+`evidence.py` sends the topic to `https://api.deepseek.com/v1/tools/search` and requests page content. It filters publishers, HTTPS URLs, available content, relevance signals, dates, and duplicates, then keeps bounded excerpts from up to three sources.
 
-The five mentors share the same configured backend. `mentors.py` changes their name, welcome text, focus, and instructions. Changing mentor starts a new conversation so earlier context is not silently transferred.
+The source panel shows app-held records: URL, title, excerpt, retrieval time, and publication date when supplied. `references.py` checks recognizable source markers and generated URLs against these records, without establishing whether every sentence accurately represents its source.
 
-`coaching_skills.py` reads three public Markdown resources:
+Retrieved pages enter the request as data. They cannot create grants or change tool policies. See [Evidence and skills](EVIDENCE_AND_SKILLS.md) for source coverage and filtering limits.
 
-- `evidence-informed-coaching`: honest source use and distinctions between evidence, interpretation, and choice.
+## 8. What mentors and skills change
+
+`mentors.py` defines five presets with different names, welcome messages, focus areas, and instructions. All use the same configured backend. Changing mentor starts a new conversation.
+
+`coaching_skills.py` loads three public Markdown resources:
+
+- `evidence-informed-coaching`: source use and the distinction between evidence, interpretation, and choice.
 - `mentor-decision-workflow`: the selected mentor's consultation sequence.
-- `realistic-action-planning`: small tasks with observable completion evidence.
+- `realistic-action-planning`: small tasks with observable completion evidence; included for plans.
 
-Python must load these files and put their instructions into the request. A file's existence alone does not provide network access, authorization, or a new tool. Skill text cannot change `PermissionGateway` policies.
+Trace `load_skill_instructions` into `prompts.py`. Python must load Markdown for its text to reach the model. Skill text cannot add network access, register tools, or change `PermissionGateway` policies.
 
-## 9. The permission gateway
+## 9. What makes a plan “checked”
 
-The application registry contains two tools: `web.search` for `public_topic` data at the fixed search endpoint, and `model.complete` for `conversation` data at the fixed model endpoint.
+A plan contains `summary`, `assumptions`, `duration_days`, and 3–8 `tasks`. Each task has `title`, `action`, `start_day`, `end_day`, `reason`, and `completion_criterion`.
 
-The gateway checks active ancestry, registered tool, exact resource, declared data category, granted scope, remaining shared calls, and callable operation. It reserves a call under a lock before invoking the callback. A transport error still spends the reservation.
+Start with a single fictional task in the Python interpreter:
 
-Default request ceilings are two searches and one completion for chat; two searches and two completions for a checked plan. The second plan completion is only for a validation correction. A grant expires after at most 600 seconds. These are transport-start limits, not currency spending limits.
+```python
+from models import Task
 
-Research, writing, and planning capabilities are restricted Python scopes. A delegated scope cannot enlarge its parent or create more shared allowance by creating siblings. Parent expiry and revocation apply to descendants. There are no runtime model workers or approval-model roles in this implementation.
+task = Task(
+    title="Try a short exercise",
+    action="Write a Python function that adds two numbers.",
+    start_day=1,
+    end_day=1,
+    reason="Practise writing and calling a function.",
+    completion_criterion="The function returns 5 when called with 2 and 3.",
+)
+print(task.start_day)
+# 1
+```
 
-The Permissions controls allow or pause online requests and can lower the search and plan-completion allowances. Recent activity displays the last request counts and recent metadata. Pausing is effective when Streamlit processes the setting; a call already reserved and started may finish and cost money. Revocation is not a cancellation or a rollback mechanism.
+Change `start_day` to `"1"`: strict validation rejects a string where an integer is required. An `end_day` of `0`, missing fields, or extra fields also fail. This validates one task, not a full plan.
 
-See [Permissions and execution boundaries](PERMISSIONS.md) for the complete teaching example and limitations.
+For a complete plan, `CareerPlan` also requires the first task to start on day 1, ordered start days, valid start/end order, and dates within the plan period. Tasks may overlap. `parse_plan` checks that the returned duration equals the user's saved selection, from 1 to 365 days. Reference checks use the retrieved evidence.
 
-## 10. Audit data and trust boundaries
+A field, schedule, or reference failure allows one correction if a completion remains. It reuses the evidence and permission budget. Connection errors, quota errors, and incomplete output stop immediately. The checked label does not certify suitability or future results.
 
-The audit retains at most 200 recent metadata events in conversation memory. New Conversation and mentor changes clear this history. Fixed fields identify the request, time, role, registered tool, resource alias, declared category, outcome, and reason. Payloads, query strings, credentials, source content, and raw exceptions are not stored in these events.
+## 10. How the permission gateway limits calls
 
-This makes the audit useful for understanding why a call was denied. It is not a durable, signed, or tamper-proof ledger. It cannot protect against malicious Python code that owns the process.
+The registry contains two tools:
 
-The gateway checks the implemented application transports. It is not a Windows sandbox and does not safely confine arbitrary extensions. No email, arbitrary upload, payment, deletion, or tool-administration transport is registered. Writing a suggestion in chat does not execute those actions.
+| Tool | Fixed destination | Declared data category |
+| --- | --- | --- |
+| `web.search` | `https://api.deepseek.com/v1/tools/search` | `public_topic` |
+| `model.complete` | `https://api.deepseek.com/chat/completions` | `conversation` |
 
-## 11. Checked plans
+Before invoking a callback, the gateway checks active ancestry, tool registration, exact destination, declared category, granted scope, remaining shared calls, and a callable operation. The category is an application-supplied label, not automatic content inspection.
 
-A checked plan returns JSON with `summary`, `assumptions`, `duration_days`, and 3–8 `tasks`. Each task has `title`, `action`, `start_day`, `end_day`, `reason`, and `completion_criterion`.
+An allowed call is reserved under a lock before the callback runs. A transport error still spends that reservation.
 
-Pydantic strict validation rejects wrong types and missing or extra fields. Application rules require the first task to start on day 1, ordered start dates, valid start/end order, all dates within the selected period, and the exact saved plan duration. Overlap is allowed. Reference validation uses the same retrieved evidence.
+| Request | Maximum search starts | Maximum model completions |
+| --- | --- | --- |
+| Chat | 2 | 1 |
+| Checked plan | 2 | 2, including one correction |
 
-A failed field, schedule, or reference check permits one correction. The correction shares both evidence and permission budget. Provider connection errors, quota errors, and incomplete output stop immediately. The checked label certifies these implemented checks, not personal suitability or future results.
+A grant lasts at most 600 seconds. These ceilings count transport starts, not money or tokens. A request may use fewer calls.
 
-## 12. Credentials and data flow
+Research can search; writing and planning scopes can complete model requests. These Python capabilities cannot enlarge their parent's authority. Siblings share its remaining allowance; descendants inherit expiry and revocation. Plans use chat's writing boundary; `planner` is an available gateway role.
 
-A pasted session key overrides private process environment settings, which override local private Streamlit settings. The password input clears after its value is transferred to session memory. The application does not persist a pasted key to disk.
+**Permissions** lets the user pause online requests or lower the search and plan-completion allowances. A pause takes effect when Streamlit processes it. A reserved call may still finish and incur charges; revocation does not cancel or undo it.
 
-`.gitignore` and the package's explicit public allowlist keep real settings, environment folders, and private learner context out of public distribution. Release verification should inspect actual staged contents and actual archives, not merely trust ignore patterns.
+See [Permissions and execution boundaries](PERMISSIONS.md) for rules and an offline exercise.
 
-The model provider receives the conversation. The search provider receives the general topic and optional region. The API key authenticates both services at DeepSeek. Local session storage does not mean offline inference or zero external data transmission.
+## 11. Read activity records with their limits in mind
 
-## 13. Test without provider charges
+**Recent activity** shows request counts and audit metadata. Up to 200 events are kept in conversation memory. **New Conversation** and mentor changes clear them.
+
+Events record request, time, role, tool, resource alias, declared category, outcome, and reason. They exclude payloads, queries, keys, source content, and raw exceptions. A denial reason can show that a call budget ran out.
+
+The audit is temporary and is not signed or tamper-proof. The gateway checks the app's two network transports; it cannot confine arbitrary Python code or serve as a Windows sandbox. No email, arbitrary upload, payment, deletion, or tool-administration transport is registered. Describing such an action in chat does not execute it.
+
+## 12. Where credentials and conversation data go
+
+Credential precedence is: pasted session key, then private process environment settings, then local private Streamlit settings. After a pasted key moves to session memory, its password input clears. The app does not save that pasted key to disk.
+
+DeepSeek receives conversation context for completion and a general topic and optional region for search. Both use the API key; local session storage does not make inference offline.
+
+`.gitignore` and the package's explicit public-file allowlist exclude real settings, environment folders, and private learner context. When preparing a release, inspect the staged files and finished archive as well as the ignore rules.
+
+## 13. Run the offline checks
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Mocked transports create repeatable success and failure cases. Permission tests assert that a denied callback never starts, shared budgets cannot be multiplied, fixed resources cannot change, and revocation/expiry are inherited. UI checks verify user actions and request state.
+Mocked transports make success and failure cases repeatable without provider charges. Permission tests check that denied callbacks never start, shared budgets cannot be multiplied, destinations stay fixed, and descendants inherit expiry and revocation. UI tests check user actions and queued request state.
 
-`desktop.permission_self_test` uses plain local callbacks. It checks one allowed action, exhausted completion allowance, inherited revocation, and paused-network denial. It needs no key and does not call DeepSeek.
+`desktop.permission_self_test` uses local callbacks to exercise an allowed action, an exhausted completion allowance, inherited revocation, and paused-network denial. It needs no key.
 
-Offline checks do not verify current account access, model availability, search service quality, or every mentor's advice. Live checks should use fictional contexts and record actual results separately. The current CI run and release report supply the executed check evidence for each build.
+Offline tests do not establish current account access, model availability, search quality, or advice quality. Use fictional contexts for live checks and record results separately. CI and release reports list checks executed for each build.
 
-## 14. Build the Windows application
+## 14. Build and understand the Windows package
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .\.venv\Scripts\python.exe scripts/build_windows.py
 ```
 
-The Tkinter launcher owns a child server listening on `127.0.0.1`, waits for readiness, and opens the browser. Closing the launcher stops the server it created. The desktop package includes Python, dependencies, static frontend files, `permissions.py`, and the runtime skills. It contains no model weights or owner's API subscription.
+The Tkinter launcher starts a child server on `127.0.0.1`, waits until it is ready, and opens the browser. Closing the launcher stops its server. The package includes Python, dependencies, Streamlit frontend assets, application modules including `permissions.py`, and runtime skills. Model weights and API access are not included.
 
-The build script runs the executable with external Python removed from PATH and writes a manifest, dependency notices, ZIP, SHA-256 checksum, and build report. Keep `_internal` next to the executable after extracting. The package remains unsigned.
+The build tests the executable with external Python removed from PATH, then writes a manifest, dependency notices, ZIP, SHA-256 checksum, and report. Keep `_internal` beside the extracted executable. The package is unsigned.
 
-## 15. Understand GitHub automation
+## 15. How GitHub automation fits in
 
-Pushing source triggers offline checks. A matching version tag runs tests, builds Windows, performs the bundled self-test, and publishes a new release if one does not already exist. `VERSION`, `version.py`, Windows version resources, and the tag must agree.
+Pushes to `main` and pull requests trigger offline checks. A matching version tag tests and builds Windows, runs the bundled self-test, and publishes a new release if absent. `VERSION`, `version.py`, Windows version resources, and the tag must agree.
 
-GitHub Actions does not watch local files or automatically commit your unfinished changes. The desktop application does not download and apply updates in the background. A user installs a new version by downloading its release ZIP.
+GitHub Actions runs on repository events; it does not watch or commit local edits. The desktop app has no background updater. To install a new version, download its release ZIP.
 
-## 16. A useful reading and exercise order
+## 16. Choose a reading exercise
 
-1. Read `mentors.py` to understand simple data classes and presets.
-2. Read `models.py` and validate one valid and one invalid plan locally.
-3. Trace a chat submission through `app.py` and `agent.reply`.
-4. Read `permissions.py` and run the local callback example in the permissions guide.
-5. Trace the actual gateway calls in `evidence.py` and `agent._complete`.
-6. Read search topics, references, prompts, and runtime skills together.
-7. Read one test for a success path and one test proving a denied side effect never starts.
-8. Read `desktop.py` and the build files after the application path is clear.
+1. Compare two presets in `mentors.py`.
+2. Try the task example; find the whole-plan checks in `models.py`.
+3. Trace `app.py` to `agent.reply`. Find where `queued` is consumed.
+4. Run the permissions guide's callback exercise. Find the check that prevents the denied operation.
+5. Follow gateway calls in `evidence.py` and `agent._complete`.
+6. Follow a source record through prompts, model requests, reference checks, and the UI.
+7. Compare a successful-request test with a denial test. What does each assertion prove?
+8. Trace `desktop.py` and the build files to understand packaging.
 
-The most useful question during each exercise is: which property is enforced by executable code, which is only requested from the model, and which is still an assumption? Keeping those three categories separate is the central lesson of the permission update.
-
+Distinguish code-enforced rules, prompt instructions, and human judgment. Code can reject a task ending after the selected period; it cannot decide whether that task fits the person's life.

@@ -1,55 +1,69 @@
 # Life Direction Agent — Windows Quick Start
 
-Version 0.4.0 · Windows x64 · Portable application
+Version 0.4.0 · Windows x64
 
-## Open the app
+You need an internet connection, your own DeepSeek API key, and available API balance. Replies and source searches use your account and may incur charges. No separate Python installation is needed.
 
-1. Download `LifeDirectionAgent-v0.4.0-windows-x64.zip` from the GitHub Release.
-2. Extract the entire ZIP to a folder you can write to. Do not run it from inside the ZIP.
-3. Double-click `LifeDirectionAgent.exe`. Keep its `_internal` folder beside it.
-4. The launcher opens the app in your default browser. Its server listens only on `127.0.0.1`.
-5. Keep the small launcher window open while using the app. Select **Quit** to stop it.
+## 1. Download and open
 
-You do not install Python, Node.js, Streamlit, or a separate server. Internet access and authorized DeepSeek API access are still required for generated replies. This is a local app, not an offline language model or a hosted service.
+1. Open the [v0.4.0 release](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.4.0). Under **Assets**, download `LifeDirectionAgent-v0.4.0-windows-x64.zip`, rather than a **Source code** archive.
+2. Right-click the ZIP and choose **Extract All**. Extract the whole folder somewhere writable, such as Documents.
+3. Open that folder and double-click `LifeDirectionAgent.exe`. Keep `_internal` beside it. Do not run the app from inside the ZIP.
+4. Wait for the launcher to say the app is ready. If your browser does not open automatically, select **Open app**.
 
-## Connect to DeepSeek
+Keep the launcher window open. The app runs on your computer at `127.0.0.1`; generated replies still need internet access.
 
-Open **Connection** in the sidebar, paste your own DeepSeek API key into the password field, and select **Use for this session**. The pasted key stays in this browser session; the app does not save it to disk. Set it again after starting a new browser session. Existing private environment settings can also supply credentials.
+## 2. Connect your DeepSeek account
 
-No owner's key or prepaid model access is included in the release. API charges belong to the account whose key you use. **Forget session key** removes a pasted session key; a separately configured environment or local setting can still apply.
+1. In the browser, open **Connection** in the left sidebar.
+2. Paste your key into **DeepSeek API key**. Leave **Model** as shown unless your account requires another model.
+3. Select **Use for this session**.
 
-## Choose a mentor
+No key or prepaid access is included. Check your available API balance in your DeepSeek account.
 
-- **Career & work:** career exploration, work decisions, and job-search preparation.
-- **Life direction:** priorities, values, and manageable experiments.
-- **Learning & skills:** practice routines and learning goals.
-- **Habits & focus:** sustainable routines and reducing friction.
-- **Communication & relationships:** clearer conversations and boundaries.
+The pasted key stays in session memory and is not saved to disk. **Forget session key** removes it; separately configured local credentials can still apply. Enter it again in a new session. Your conversation is sent to DeepSeek for replies.
 
-Changing mentors starts a fresh conversation. **New Conversation** resets the current mentor's thread. Conversations are session-only; there is no account or persistent chat database.
+## 3. Start a conversation
 
-## Sources and skills
+Use **Choose your mentor** in the sidebar to pick an area: **Career & work**, **Life direction**, **Learning & skills**, **Habits & focus**, or **Communication & relationships**.
 
-Advice first searches primary sources through DeepSeek using a general topic. Open **Sources consulted** below each reply to inspect actual links and excerpts. **Sources and skills** offers an optional source region and shows the active runtime skills. Search may incur extra provider charges. If no suitable source content is found, the app asks a clarification and does not generate a checked plan. Retrieved sources and checked identifiers do not prove every claim or personal suitability.
+Describe your situation, what feels uncertain, and the time you have available. For example, with **Career & work**:
 
-## Make a checked action plan
+> I work in retail and want to explore a different career. I can spend two evenings a week on this. How could I start comparing a few options?
 
-Describe your situation, then open **Create a task plan**, choose a period from 1 to 365 days, and select **Create checked plan**. The app checks 3–8 tasks, required fields, and schedule bounds before adding its checked label. This label does not certify personal suitability or promise outcomes.
+Send it using the box at the bottom of the page. The app searches primary sources before offering advice. Open **Sources consulted** below a reply for links and excerpts. Optionally choose a **Source region** under **Sources and skills** before your next message.
 
-Open the top-right app menu and select **Light**, **Dark**, or **System**.
+Changing mentors or selecting **New Conversation** clears the chat. History lasts only for the current session; copy anything you want to keep.
 
-## Review permissions
+## 4. Turn the conversation into a plan
 
-Open **Permissions** to allow or pause online requests and lower search or plan-completion limits. Open **Recent activity** to see request counts and audit events. Sending, planning, and retrying grant one bounded request; ordinary page redraws do not grant another. Chat permits at most two search calls and one model completion; a checked plan permits at most two search calls and two completions. A failed transport start also consumes a call. These are call limits, not a price cap.
+1. Share your situation and wait for the reply.
+2. Open **Create a task plan** in the sidebar.
+3. Set **Plan length (days)** from 1 to 365. Seven days is the starting value.
+4. Select **Create checked plan**.
 
-Pausing blocks future starts after the setting is processed, but cannot cancel a call already in flight. Requests expire after ten minutes and are revoked when finished. Audit records contain only sanitized metadata and remain in memory for the conversation; **New Conversation** clears them. They are not a permanent security log. See [Permissions](PERMISSIONS.md) in the source repository for details.
+A successful plan has 3–8 tasks. **Task fields and schedule checked** means its required fields and dates passed the app's checks. Source references are checked against retrieved results. The label does not guarantee accurate advice or a plan that fits your situation.
 
-## Troubleshooting
+## 5. Adjust the app
 
-- Keep the exe and `_internal` together. Re-extract the complete ZIP if a file is missing.
-- The launcher may take a few moments to start. Select **Open app** if the browser did not open automatically.
-- App startup logs are under `%LOCALAPPDATA%\LifeDirectionAgent\desktop.log`. Avoid sharing personal conversation text or credentials in reports.
-- A network, quota, or credential error is shown in the app; use the explicit retry action after resolving it.
-- The executable is not digitally signed. Windows may display a publisher or SmartScreen notice. Obtain it from the project release and compare the ZIP's SHA-256 with the published checksum.
+- **Appearance:** open the top-right app menu and choose **Light**, **Dark**, or **System**.
+- **Online access:** under **Permissions**, clear **Allow online requests** to pause new calls once processed. Calls already in progress may finish.
+- **Request limits:** under **Permissions**, reduce **Search calls per request** or **Model calls per plan** from 2 to 1. One model call leaves no allowance to correct a failed plan. These count attempts, not spending.
+- **Activity:** **Recent activity** shows request counts and events. **New Conversation** clears this in-memory history.
 
-The release does not submit a Devpost entry or install a background updater. Future versions are published as new GitHub Releases.
+For more detail, see the [permissions guide](https://github.com/C1S9/career-planning-assistant/blob/main/docs/PERMISSIONS.md).
+
+## If something gets stuck
+
+- **The app will not open:** fully extract the ZIP and keep `_internal` beside the EXE. If startup times out, select **Quit** and reopen the EXE.
+- **Windows shows a publisher or SmartScreen notice:** this release is unsigned. Confirm the download came from the project's release page and compare its SHA-256 with `SHA256SUMS.txt` there.
+- **A reply fails:** follow the error message. Check your connection, key, model access, and balance; wait if the service is busy. Then select **Retry Reply**. It retries your existing message or plan and may incur another charge.
+- **Online requests are paused:** enable **Allow online requests** under **Permissions**, then select **Retry Reply** if shown.
+- **No suitable sources were found:** if chat asks for more context, clarify your concern and check the source region. For a failed plan, select **Retry Reply** later or **New Conversation** to start again.
+- **The plan button is unavailable:** enter your key, share your situation, and wait for a reply. Resolve any failed reply first.
+
+Startup logs: `%LOCALAPPDATA%\LifeDirectionAgent\desktop.log`. To [report a problem](https://github.com/C1S9/career-planning-assistant/issues), describe what you clicked and the error shown. Remove keys and personal details from anything you share.
+
+## When you are finished
+
+Copy anything you want to keep, then select **Quit** or close the launcher window. Closing only the browser tab leaves the app running. Next time, open `LifeDirectionAgent.exe` again.

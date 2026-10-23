@@ -1,36 +1,37 @@
-# API Key and Git Protection Check
+# Keep your API key private
 
-## Current Result
+The app needs your DeepSeek API key to send requests. Treat it like a password: enter it in the app or keep it in local settings, and leave it out of source code, screenshots, and issue reports.
 
-The demo was published to the [private GitHub repository](https://github.com/C1S9/career-planning-assistant) on branch `main`. The initial uploaded snapshot, `8106f8acf888e462187e0bd040fdf702e43d05c5`, was verified against the local commit and all 20 tracked file paths. Before publication, its exact staging area was checked for the configured local key and unintended private files. Documentation updates receive the same staging checks before publication.
+## Use a key for one session
 
-The private DeepSeek setting remains in the local `.streamlit/secrets.toml` file. Its contents were not printed, copied into deliverables, or staged.
+Open **Connection**, paste your key into **DeepSeek API key**, and choose **Use for this session**. The app keeps that pasted key in session memory instead of saving it to a file. **Forget session key** removes the pasted key; a key supplied through local settings or an environment variable may still apply.
 
-## Evidence
+## Use local settings when running from source
 
-- The actual Git staging area was inspected, rather than relying only on `.gitignore` text.
-- All 20 staged files were compared in memory against the configured local API key and checked for long `sk-` key literals. No matches were found. The checker reports file paths and result categories, never credential values.
-- A separate local text scan inspected 49 project files and reported no matching key in shareable text.
-- Git confirmed exclusion of `.streamlit/secrets.toml`, `devpost/learner-profile.md`, local environment files, the Python environment, and installed learning-tool directories.
-- `.streamlit/secrets.toml.example` contains a placeholder only and is eligible for publication.
-- The staged changes passed `git diff --cached --check`.
-- All 22 automated application tests passed with simulated provider responses. These checks do not spend API credit or establish live provider availability.
+Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`, then edit the copy locally. The example contains a placeholder; the real settings file is ignored by Git. You can also supply `DEEPSEEK_API_KEY` through a private process environment.
 
-## Rules to Keep
+The connection uses this order: a pasted session key, then the environment variable, then the local settings file.
 
-Keep real credentials in the ignored settings file or private process environment. Review the actual staged changes before every commit. Do not force-add a private file, paste a key into source code, or publish terminal output containing a key.
+## Before committing or sharing files
 
-Installed learning tools remain local; `skills-lock.json` records their sources. The source, tests, requirements, English planning documents, and learning guide form the demo snapshot.
+Run these commands from the project folder:
 
-This targeted check covers the current staging area and matching local text. It does not audit other repositories, external uploads, arbitrary credential formats, or future changes. Ignore rules do not remove an already committed credential; see the [official Git ignore documentation](https://git-scm.com/docs/gitignore).
+```powershell
+git check-ignore .streamlit/secrets.toml
+git status --short
+git diff --cached --name-only
+```
 
-## Publication Verification
+The first command should show `.streamlit/secrets.toml`. Review the staged filenames before committing. Inspect the actual changes locally as well, but avoid copying output that might contain a key into a chat or bug report.
 
-The normal Git transport was reset by the network, so the reviewed snapshot was published through the authenticated GitHub API. The remote file-tree hash matched the reviewed local tree. The remote commit was reconstructed and hash-verified locally, and the remote branch and tracked-file list were checked again. No remote history was force-updated. The original unpublished local commit remains on `demo-before-api-upload`. Credentials were used in memory and were never written to these documents or printed.
+The repository's ignore rules cover real Streamlit settings, `.env` files, local Python environments, learner profiles, and installed learning-tool folders. Placeholder examples can be shared. Do not use `git add -f` to include a private settings file.
 
+An ignore rule only keeps untracked files out of normal Git additions. It cannot remove a secret that was already committed. If a key is exposed, revoke it through the provider, create a replacement, and address the affected history or shared copy. Deleting the key from the latest file alone does not make the old key private again.
 
-## Owner-Authorized Public Visibility
+## What has been checked
 
-The owner authorized making [https://github.com/C1S9/career-planning-assistant](https://github.com/C1S9/career-planning-assistant) public. Before the change, the history check covered seven locally reachable commits and 31 unique blobs, with no configured-key, common long-token, or private-path findings. The remote had 21 tracked files and matched local `main`.
+For v0.4.0, the actual staged source changes and the generated Windows ZIP were checked for the configured local key and private file paths. Neither check found them. The package is assembled from an explicit list of public files; it does not include a user's settings file or prepaid API access. See the [release record](RELEASE_STATUS.md) for the checked version and artifacts.
 
-GitHub confirmed `private: false`. An unauthenticated raw README request succeeded and matched its expected Git blob hash. Anonymous REST API requests were rate limited, so public-file access was checked separately. The private settings and learner profile remain ignored and absent from the reviewed repository history. Later documentation updates are scanned before publication. No key value is printed in this report.
+This repository is public, so anyone can read the files committed here. Keep local settings and personal notes out of it.
+
+These checks cover the files and key used in that release. Future changes still need review. Git's behavior is explained in the [official ignore documentation](https://git-scm.com/docs/gitignore).

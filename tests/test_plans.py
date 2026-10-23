@@ -12,6 +12,7 @@ from agent import ChatError, generate_plan
 from models import PlanValidationError, format_plan, parse_plan
 from plan_fixtures import plan_data
 from evidence_fixtures import ready_evidence
+from permissions import PermissionGateway
 
 
 def completion(data):
@@ -107,6 +108,26 @@ class PlanWorkflowTests(unittest.TestCase):
         self.assertEqual(client.chat.completions.create.call_count, 2)
         second = client.chat.completions.create.call_args.kwargs["messages"][0]["content"]
         self.assertIn("previous attempt failed validation", second)
+
+    @patch("agent.OpenAI")
+    def test_single_model_budget_blocks_correction_and_revokes_permission(self, factory):
+        client = factory.return_value.__enter__.return_value
+        client.chat.completions.create.return_value = completion("PRIVATE-BROKEN-OUTPUT")
+        gateway = PermissionGateway(model_limit=1)
+        with self.assertRaises(ChatError) as caught:
+            generate_plan(self.messages, duration_days=3, api_key="test-key", gateway=gateway)
+        self.assertEqual(client.chat.completions.create.call_count, 1)
+        self.assertEqual(gateway.snapshot()["model_used"], 1)
+        self.assertTrue(gateway.snapshot()["revoked"])
+        self.assertNotIn("PRIVATE", str(caught.exception))
+
+    @patch("agent.OpenAI")
+    def test_invalid_input_closes_supplied_permission_before_transport(self, factory):
+        gateway = PermissionGateway(model_limit=2)
+        with self.assertRaises(ChatError):
+            generate_plan(self.messages, duration_days=0, api_key="test-key", gateway=gateway)
+        factory.assert_not_called()
+        self.assertTrue(gateway.snapshot()["revoked"])
 
     @patch("agent.OpenAI")
     def test_two_invalid_plans_stop_with_safe_failure(self, factory):

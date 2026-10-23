@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-10-23
+
+- Added an application permission gateway before the two implemented network transports: primary-source search and model completion.
+- Added fixed destination and data-category checks, request expiry, revocation, shared per-request call budgets, and restricted research/writing capability scopes.
+- Added network-pause controls and bounded, memory-only audit metadata without raw chat, source content, queries, keys, or provider errors.
+- Left unimplemented external actions and permission administration denied; no email, payment, arbitrary upload, or independent model-agent team was introduced.
+- Bundled the gateway and added an offline executable probe for budget, delegated revocation, and paused-network enforcement. Added an English permission and learning guide.
+
 ## 0.3.0 — 2026-10-23
 
 - Added live primary-source retrieval before advice, private topic queries, optional region selection, actual source panels, and honest failure handling.

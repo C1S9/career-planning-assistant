@@ -96,7 +96,7 @@ def main():
     shutil.copyfile(ROOT / "docs/WINDOWS_QUICKSTART.md", bundle / "START_HERE.txt")
     copy_license_notices(bundle)
     source_files = ["app.py", "agent.py", "models.py", "prompts.py", "mentors.py", "version.py", "desktop.py", ".streamlit/config.toml", "requirements.txt",
-                    "evidence.py", "references.py", "search_topics.py", "coaching_skills.py"]
+                    "evidence.py", "references.py", "search_topics.py", "coaching_skills.py", "permissions.py"]
     source_files += [f"skills/{name}/SKILL.md" for name in ("evidence-informed-coaching", "mentor-decision-workflow", "realistic-action-planning")]
     manifest = {"version": __version__, "python": platform.python_version(), "architecture": "windows-x64", "source_sha256": {name: digest(ROOT / name) for name in source_files}, "smoke_test": report, "credentials_included": False}
     (bundle / "BUILD_MANIFEST.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

@@ -14,6 +14,7 @@ import time
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx2 as httpx
+from permissions import PermissionDenied, PermissionGateway
 
 SEARCH_ENDPOINT = "https://api.deepseek.com/v1/tools/search"
 MAX_RESPONSE_BYTES = 1_000_000
@@ -131,7 +132,15 @@ class _SearchFailure(ValueError):
         self.permanent = permanent
 
 
-def _search(query: str, api_key: str, deadline: float) -> list:
+def _search(query: str, api_key: str, deadline: float, gateway: PermissionGateway | None = None) -> list:
+    """The transport boundary requires an actual request-scoped capability."""
+    if not isinstance(gateway, PermissionGateway):
+        raise PermissionDenied("A request permission is required.")
+    return gateway.run("web.search", resource=SEARCH_ENDPOINT, data_class="public_topic",
+                       operation=lambda: _search_transport(query, api_key, deadline))
+
+
+def _search_transport(query: str, api_key: str, deadline: float) -> list:
     remaining = deadline - time.monotonic()
     if remaining <= 0:
         raise TimeoutError("Search budget elapsed")
@@ -193,7 +202,8 @@ def _source(item: object, terms: set[str], mentor_id: str, now: datetime) -> Sou
     return Source("", title, url, excerpt, published)
 
 
-def retrieve_evidence(query: str, *, api_key: str, mentor_id: str = "career") -> EvidenceBundle:
+def retrieve_evidence(query: str, *, api_key: str, mentor_id: str = "career",
+                      gateway: PermissionGateway | None = None) -> EvidenceBundle:
     """Search once or twice; return only usable evidence and safe failure notices."""
     now = datetime.now(timezone.utc)
     query = _clean(query, 128) if isinstance(query, str) else ""
@@ -205,9 +215,13 @@ def retrieve_evidence(query: str, *, api_key: str, mentor_id: str = "career") ->
     sources, seen = [], set()
     successful = False
     deadline = time.monotonic() + SEARCH_BUDGET_SECONDS
-    for scoped in _scoped_queries(query, mentor_id):
+    for index, scoped in enumerate(_scoped_queries(query, mentor_id)):
+        # A smaller authorized budget still permits using the first search's
+        # evidence. An initial denial must reach the caller before any advice.
+        if index and isinstance(gateway, PermissionGateway) and gateway.snapshot()["search_remaining"] == 0:
+            break
         try:
-            results = _search(scoped, api_key, deadline)
+            results = _search(scoped, api_key, deadline, gateway)
             successful = True
         except _SearchFailure as error:
             if error.permanent:

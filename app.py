@@ -12,6 +12,7 @@ from models import MAX_PLAN_DAYS, MIN_PLAN_DAYS, PlanValidationError, format_pla
 from version import APP_NAME, __version__
 from coaching_skills import active_skill_names
 from search_topics import REGIONS
+from permissions import AuditTrail, PermissionGateway
 
 st.set_page_config(
     page_title=APP_NAME, page_icon=":material/explore:", layout="centered",
@@ -34,6 +35,12 @@ def setting(name: str, default: str = "") -> str:
 
 def new_conversation(mentor_id: str | None = None) -> None:
     """Clear old context and invalidate its pending response when the mentor changes."""
+    current = st.session_state.get("current_permission")
+    if isinstance(current, PermissionGateway):
+        current.revoke()
+    st.session_state.current_permission = None
+    st.session_state.permission_audit = AuditTrail()
+    st.session_state.last_permission = None
     selected = mentor_id or st.session_state.get("active_mentor", DEFAULT_MENTOR)
     st.session_state.active_mentor = selected
     st.session_state.messages = [{"role": "assistant", "content": get_mentor(selected).welcome}]
@@ -88,6 +95,9 @@ st.session_state.setdefault("mentor_choice", DEFAULT_MENTOR)
 st.session_state.setdefault("active_mentor", DEFAULT_MENTOR)
 if "messages" not in st.session_state:
     new_conversation()
+if "permission_audit" not in st.session_state:
+    # Existing source-mode sessions may survive a development hot reload.
+    st.session_state.permission_audit = AuditTrail()
 for name, default in (("request_kind", "chat"), ("request_days", None), ("plan_duration", 7)):
     st.session_state.setdefault(name, default)
 
@@ -158,11 +168,39 @@ with st.sidebar:
         st.caption("Selected region applies to new requests. Source relevance and factual accuracy still need judgment.")
         st.caption("Active coaching skills: " + ", ".join(active_skill_names(selected, planning=False)))
 
+    with st.expander("Permissions", icon=":material/security:"):
+        online = st.checkbox("Allow online requests", value=True, key="permission_online")
+        if not online:
+            current = st.session_state.get("current_permission")
+            if isinstance(current, PermissionGateway):
+                current.revoke()
+        st.number_input("Search calls per request", min_value=1, max_value=2, value=2,
+                        step=1, key="permission_search_limit")
+        st.number_input("Model calls per plan", min_value=1, max_value=2, value=2,
+                        step=1, key="permission_model_limit")
+        st.caption("Sending a message authorizes one request for up to 10 minutes. Chat uses at most one model call; a plan may use a second call to correct invalid output.")
+        st.caption("Search receives a general topic. The model receives your conversation. Both use fixed DeepSeek endpoints. Failed calls count toward these limits; these are not spending limits.")
+        st.caption("Pausing blocks new calls when the setting is processed. A request already in progress cannot be recalled. Sending messages, payments, and file deletion are unavailable.")
+
+    with st.expander("Recent activity", icon=":material/history:"):
+        snapshot = st.session_state.get("last_permission")
+        if snapshot:
+            st.caption(f"Last request: {snapshot['search_used']}/{snapshot['search_limit']} search calls · {snapshot['model_used']}/{snapshot['model_limit']} model calls. Permission closed after completion.")
+        records = st.session_state.permission_audit.to_records()
+        if records:
+            st.dataframe([{key: row[key] for key in ("timestamp", "principal", "tool", "status", "reason")} for row in records],
+                         hide_index=True, width="stretch")
+        else:
+            st.caption("No activity yet.")
+        st.caption("Up to 200 metadata events in this conversation. No keys, messages, search queries, or source text are recorded here. New Conversation clears this history.")
+
 st.title("Find your next step")
 st.write(mentor.description)
 st.caption(f"{mentor.name} mentor · Messages are sent to DeepSeek. History stays in this session.")
 if not configured:
     st.info("Open Connection in the sidebar and enter your DeepSeek API key to begin.")
+if not st.session_state.permission_online:
+    st.info("Online requests are paused. Enable them in Permissions to continue.")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -199,19 +237,36 @@ if request_now and awaiting_reply:
     selected_mentor = st.session_state.active_mentor
     checked = False
     research_records = []
+    gateway = None
     try:
+        # Widget bounds are a convenience; the Python gateway validates the
+        # actual authorization before any network client can be constructed.
+        online = st.session_state.permission_online
+        model_limit = st.session_state.permission_model_limit
+        if type(online) is not bool or type(model_limit) is not int or not 1 <= model_limit <= 2:
+            raise ChatError("Invalid permission settings. Restore the allowed limits and retry.")
+        try:
+            gateway = PermissionGateway(token, search_enabled=online,
+                                        search_limit=st.session_state.permission_search_limit,
+                                        model_limit=(model_limit if st.session_state.request_kind == "plan" else 1) if online else 0,
+                                        audit=st.session_state.permission_audit)
+        except ValueError:
+            raise ChatError("Invalid permission settings. Restore the allowed limits and retry.") from None
+        st.session_state.current_permission = gateway
         with st.spinner("Checking primary sources, then working through your next step..."):
             if st.session_state.request_kind == "plan":
                 plan = generate_plan(
                     list(st.session_state.messages), duration_days=st.session_state.request_days,
                     api_key=api_key, model=model, mentor_id=selected_mentor,
                     source_region=st.session_state.source_region, on_evidence=research_records.append,
+                    gateway=gateway,
                 )
                 answer = format_plan(plan)
                 checked = True
             else:
                 answer = reply(list(st.session_state.messages), api_key=api_key, model=model, mentor_id=selected_mentor,
-                               source_region=st.session_state.source_region, on_evidence=research_records.append)
+                               source_region=st.session_state.source_region, on_evidence=research_records.append,
+                               gateway=gateway)
     except ChatError as error:
         if token == st.session_state.request_token:
             st.session_state.reply_error = str(error)
@@ -226,4 +281,10 @@ if request_now and awaiting_reply:
                                              "evidence": research_records[-1].to_dict() if research_records else None})
             st.session_state.reply_error = None
             st.session_state.failed_evidence = None
+    finally:
+        if gateway is not None:
+            gateway.close()
+            if token == st.session_state.request_token:
+                st.session_state.last_permission = gateway.snapshot()
+                st.session_state.current_permission = None
     st.rerun()

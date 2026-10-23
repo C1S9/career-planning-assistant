@@ -8,6 +8,7 @@ from unittest.mock import patch
 import httpx2 as httpx
 
 import evidence
+from permissions import PermissionGateway
 
 
 def result(**changes):
@@ -20,7 +21,7 @@ def result(**changes):
 
 
 class RetrievalTests(unittest.TestCase):
-    def retrieve(self, payload=None, status=200, headers=None, error=None, mentor_id="career", query="career planning work skills"):
+    def retrieve(self, payload=None, status=200, headers=None, error=None, mentor_id="career", query="career planning work skills", search_limit=2):
         requests = []
         real_client = httpx.Client
 
@@ -37,8 +38,14 @@ class RetrievalTests(unittest.TestCase):
             return real_client(transport=httpx.MockTransport(handler), **kwargs)
 
         with patch("evidence.httpx.Client", side_effect=client):
-            bundle = evidence.retrieve_evidence(query, api_key="fictional-test-key", mentor_id=mentor_id)
+            bundle = evidence.retrieve_evidence(query, api_key="fictional-test-key", mentor_id=mentor_id,
+                                               gateway=PermissionGateway(search_limit=search_limit))
         return bundle, requests
+
+    def test_single_search_budget_preserves_usable_evidence(self):
+        bundle, requests = self.retrieve({"results": [result()]}, search_limit=1)
+        self.assertEqual(bundle.status, "ready")
+        self.assertEqual(len(requests), 1)
 
     def test_usable_page_has_real_url_content_and_timestamp(self):
         bundle, requests = self.retrieve({"results": [result()]})

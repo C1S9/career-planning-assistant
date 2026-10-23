@@ -2,6 +2,7 @@
 
 from collections.abc import Callable, Sequence
 import json
+import httpx2 as httpx
 
 from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 
@@ -11,6 +12,7 @@ from prompts import plan_system_prompt, system_prompt
 from evidence import EvidenceBundle, retrieve_evidence
 from references import ReferenceError, validate_references
 from search_topics import search_topic
+from permissions import MODEL_RESOURCE, PermissionDenied, PermissionGateway
 
 # The destination is DeepSeek, even though the compatible client is named OpenAI.
 BASE_URL = "https://api.deepseek.com"
@@ -47,9 +49,35 @@ def validate_history(messages: Sequence[ChatMessage]) -> None:
 
 def reply(
     messages: Sequence[ChatMessage], *, api_key: str, model: str = DEFAULT_MODEL,
+    mentor_id: str = DEFAULT_MENTOR, source_region: str = "Not specified",
+    on_evidence: Callable[[EvidenceBundle], None] | None = None,
+    gateway: PermissionGateway | None = None,
+) -> str:
+    """One explicit request grants bounded tools; always revoke them afterward."""
+    gate = _request_gateway(gateway, model_limit=1)
+    try:
+        return _reply(messages, api_key=api_key, model=model, mentor_id=mentor_id,
+                      source_region=source_region, on_evidence=on_evidence, gateway=gate)
+    except PermissionDenied:
+        raise ChatError("This action is outside the current permission, expired, paused, or over its call limit. Review Permissions and retry when ready.") from None
+    finally:
+        gate.revoke()
+
+
+def _request_gateway(gateway, *, model_limit):
+    if gateway is None:
+        return PermissionGateway(model_limit=model_limit)
+    if not isinstance(gateway, PermissionGateway):
+        raise ChatError("The request permission could not be read. Start a new conversation.")
+    return gateway
+
+
+def _reply(
+    messages: Sequence[ChatMessage], *, api_key: str, model: str = DEFAULT_MODEL,
     mentor_id: str = DEFAULT_MENTOR,
     source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
+    gateway: PermissionGateway,
 ) -> str:
     """Return one complete DeepSeek reply, or raise a safe ChatError."""
     # Validate here as well as in the page so this module is safe to reuse.
@@ -64,7 +92,7 @@ def reply(
     except ValueError as error:
         raise ChatError(str(error)) from None
     evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
-                         source_region=source_region, on_evidence=on_evidence)
+                         source_region=source_region, on_evidence=on_evidence, gateway=gateway)
     if evidence.status != "ready":
         # Search failure cannot silently become apparently researched advice.
         return (
@@ -77,7 +105,7 @@ def reply(
     payload = [{"role": "system", "content": instruction}]
     payload.extend({"role": item["role"], "content": item["content"]} for item in messages)
 
-    answer = _complete(payload, api_key=api_key, model=model)
+    answer = _complete(payload, api_key=api_key, model=model, gateway=gateway)
     try:
         validate_references(answer, evidence)
     except ReferenceError:
@@ -86,6 +114,25 @@ def reply(
 
 
 def generate_plan(
+    messages: Sequence[ChatMessage], *, duration_days: int, api_key: str,
+    model: str = DEFAULT_MODEL, mentor_id: str = DEFAULT_MENTOR,
+    source_region: str = "Not specified",
+    on_evidence: Callable[[EvidenceBundle], None] | None = None,
+    gateway: PermissionGateway | None = None,
+) -> CareerPlan:
+    """A plan correction shares the original call budget and authorization."""
+    gate = _request_gateway(gateway, model_limit=2)
+    try:
+        return _generate_plan(messages, duration_days=duration_days, api_key=api_key,
+                              model=model, mentor_id=mentor_id, source_region=source_region,
+                              on_evidence=on_evidence, gateway=gate)
+    except PermissionDenied:
+        raise ChatError("This action is outside the current permission, expired, paused, or over its call limit. Review Permissions and retry when ready.") from None
+    finally:
+        gate.revoke()
+
+
+def _generate_plan(
     messages: Sequence[ChatMessage],
     *,
     duration_days: int,
@@ -94,6 +141,7 @@ def generate_plan(
     mentor_id: str = DEFAULT_MENTOR,
     source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
+    gateway: PermissionGateway,
 ) -> CareerPlan:
     """Generate, check, and at most once regenerate a structured task plan."""
     validate_history(messages)
@@ -109,7 +157,7 @@ def generate_plan(
     if not api_key.strip():
         raise ChatError("Chat is not configured yet. Complete the local setup to begin.")
     evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
-                         source_region=source_region, on_evidence=on_evidence)
+                         source_region=source_region, on_evidence=on_evidence, gateway=gateway)
     if evidence.status != "ready":
         raise ChatError("Suitable primary sources could not be retrieved. A source-grounded plan was not generated. Retry or clarify your concern.")
     schema = json.dumps(CareerPlan.model_json_schema(), ensure_ascii=True)
@@ -139,7 +187,7 @@ def generate_plan(
         # authentication, and incomplete-output errors stop immediately.
         payload = [{"role": "system", "content": instruction + feedback}]
         payload.extend({"role": item["role"], "content": item["content"]} for item in messages)
-        raw = _complete(payload, api_key=api_key, model=model, json_mode=True)
+        raw = _complete(payload, api_key=api_key, model=model, json_mode=True, gateway=gateway)
         try:
             plan = parse_plan(raw, expected_days=duration_days)
             validate_references(plan.model_dump_json(), evidence)
@@ -156,33 +204,49 @@ def generate_plan(
     raise ChatError("The plan could not be completed.")
 
 
-def _research(messages, *, api_key, mentor_id, source_region, on_evidence):
+def _research(messages, *, api_key, mentor_id, source_region, on_evidence, gateway):
     """Always retrieve before advice; share one result across a plan correction."""
     try:
         query = search_topic(messages, mentor_id, source_region)
     except ValueError as error:
         raise ChatError(str(error)) from None
-    evidence = retrieve_evidence(query, api_key=api_key, mentor_id=mentor_id)
+    researcher = gateway.delegate("research", tools=("web.search",))
+    evidence = retrieve_evidence(query, api_key=api_key, mentor_id=mentor_id, gateway=researcher)
     if on_evidence is not None:
         on_evidence(evidence)
     return evidence
 
 
 def _complete(
-    payload: list[dict[str, str]], *, api_key: str, model: str, json_mode: bool = False
+    payload: list[dict[str, str]], *, api_key: str, model: str, json_mode: bool = False,
+    gateway: PermissionGateway | None = None,
 ) -> str:
     """Share one provider request boundary between chat and checked plans."""
+    if not isinstance(gateway, PermissionGateway):
+        raise PermissionDenied("A request permission is required.")
+    writer = gateway.delegate("writer", tools=("model.complete",))
+    return writer.run(
+        "model.complete", resource=MODEL_RESOURCE,
+        data_class="conversation",
+        operation=lambda: _provider_complete(payload, api_key=api_key, model=model, json_mode=json_mode),
+    )
+
+
+def _provider_complete(payload, *, api_key, model, json_mode):
+    """Private transport; called only inside an authorized tool operation."""
     if not api_key.strip():
         raise ChatError("Chat is not configured yet. Complete the local setup to begin.")
 
     try:
         # 'with' closes the client's network resources when this request ends.
-        with OpenAI(
+        with httpx.Client(follow_redirects=False, trust_env=False, timeout=60.0) as transport, OpenAI(
             api_key=api_key.strip(),
             base_url=BASE_URL,
             timeout=60.0,
             # A retry should be an explicit user action, not a hidden extra call.
             max_retries=0,
+            # Keep credentials on the approved host: do not follow redirects.
+            http_client=transport,
         ) as client:
             response = client.chat.completions.create(
                 model=model.strip() or DEFAULT_MODEL,

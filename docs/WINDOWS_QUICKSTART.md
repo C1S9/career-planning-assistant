@@ -1,10 +1,10 @@
 # Life Direction Agent — Windows Quick Start
 
-Version 0.3.0 · Windows x64 · Portable application
+Version 0.4.0 · Windows x64 · Portable application
 
 ## Open the app
 
-1. Download `LifeDirectionAgent-v0.3.0-windows-x64.zip` from the GitHub Release.
+1. Download `LifeDirectionAgent-v0.4.0-windows-x64.zip` from the GitHub Release.
 2. Extract the entire ZIP to a folder you can write to. Do not run it from inside the ZIP.
 3. Double-click `LifeDirectionAgent.exe`. Keep its `_internal` folder beside it.
 4. The launcher opens the app in your default browser. Its server listens only on `127.0.0.1`.
@@ -37,6 +37,12 @@ Advice first searches primary sources through DeepSeek using a general topic. Op
 Describe your situation, then open **Create a task plan**, choose a period from 1 to 365 days, and select **Create checked plan**. The app checks 3–8 tasks, required fields, and schedule bounds before adding its checked label. This label does not certify personal suitability or promise outcomes.
 
 Open the top-right app menu and select **Light**, **Dark**, or **System**.
+
+## Review permissions
+
+Open **Permissions** to allow or pause online requests and lower search or plan-completion limits. Open **Recent activity** to see request counts and audit events. Sending, planning, and retrying grant one bounded request; ordinary page redraws do not grant another. Chat permits at most two search calls and one model completion; a checked plan permits at most two search calls and two completions. A failed transport start also consumes a call. These are call limits, not a price cap.
+
+Pausing blocks future starts after the setting is processed, but cannot cancel a call already in flight. Requests expire after ten minutes and are revoked when finished. Audit records contain only sanitized metadata and remain in memory for the conversation; **New Conversation** clears them. They are not a permanent security log. See [Permissions](PERMISSIONS.md) in the source repository for details.
 
 ## Troubleshooting
 

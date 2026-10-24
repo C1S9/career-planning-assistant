@@ -1,69 +1,62 @@
-# Life Direction Agent — Windows Quick Start
+# Graduate Career Workbench — Windows quick start
 
-Version 0.4.0 · Windows x64
+Version 0.5.0 · Windows x64 · Launcher name: Life Direction Agent
 
-You need an internet connection, your own DeepSeek API key, and available API balance. Replies and source searches use your account and may incur charges. No separate Python installation is needed.
+The portable package runs locally and includes Python. The profile, job-description comparison, and application tracker work without an API key. Market research, chat, and generated plans require an internet connection and your own DeepSeek API key with available balance.
 
-## 1. Download and open
+## 1. Open the package
 
-1. Open the [v0.4.0 release](https://github.com/C1S9/career-planning-assistant/releases/tag/v0.4.0). Under **Assets**, download `LifeDirectionAgent-v0.4.0-windows-x64.zip`, rather than a **Source code** archive.
-2. Right-click the ZIP and choose **Extract All**. Extract the whole folder somewhere writable, such as Documents.
-3. Open that folder and double-click `LifeDirectionAgent.exe`. Keep `_internal` beside it. Do not run the app from inside the ZIP.
-4. Wait for the launcher to say the app is ready. If your browser does not open automatically, select **Open app**.
+1. Obtain the built `LifeDirectionAgent-v0.5.0-windows-x64.zip` and its checksum from the delivery accompanying this version. Use the [Releases page](https://github.com/C1S9/career-planning-assistant/releases) for published packages and [release status](RELEASE_STATUS.md) for version details.
+2. Choose **Extract All** and extract the entire folder into a writable location, such as Documents.
+3. Double-click `LifeDirectionAgent.exe`. Keep `_internal` beside it and do not launch from inside the ZIP.
+4. Wait for the control window to report the app is ready. Select **Open app** if the browser does not open automatically.
 
-Keep the launcher window open. The app runs on your computer at `127.0.0.1`; generated replies still need internet access.
+The launcher retains the earlier Life Direction Agent name; the browser shows the graduate career workbench. Keep the launcher open while using the app. The server listens on `127.0.0.1`.
 
-## 2. Connect your DeepSeek account
+The executable is unsigned. If Windows shows a publisher notice, verify the package's source and compare its SHA-256 with the accompanying `SHA256SUMS.txt`.
 
-1. In the browser, open **Connection** in the left sidebar.
-2. Paste your key into **DeepSeek API key**. Leave **Model** as shown unless your account requires another model.
-3. Select **Use for this session**.
+## 2. Try the local job tools
 
-No key or prepaid access is included. Check your available API balance in your DeepSeek account.
+Save a profile under **Your student profile**. Choose a mainland China target role and city, your study stage, goal, practised skills, and weekly preparation hours.
 
-The pasted key stays in session memory and is not saved to disk. **Forget session key** removes it; separately configured local credentials can still apply. Enter it again in a new session. Your conversation is sent to DeepSeek for replies.
+Open **Job tools**. Paste a job description and select **Compare skills** to inspect skill mentions and practice ideas. Add a target role to **Track applications**, then download its CSV. No model request is needed for these actions.
 
-## 3. Start a conversation
+Changing and saving a profile starts a fresh chat and clears its prior brief and comparison. Application records remain in the current session.
 
-Use **Choose your mentor** in the sidebar to pick an area: **Career & work**, **Life direction**, **Learning & skills**, **Habits & focus**, or **Communication & relationships**.
+## 3. Connect for advice
 
-Describe your situation, what feels uncertain, and the time you have available. For example, with **Career & work**:
+1. Open **Connection** in the sidebar.
+2. Paste your own key into **DeepSeek API key**.
+3. Leave **Model** as shown unless your account requires another model.
+4. Select **Use for this session**.
 
-> I work in retail and want to explore a different career. I can spend two evenings a week on this. How could I start comparing a few options?
+No key or prepaid balance is included. Online calls use your account and may incur API charges. The pasted key stays in session memory; **Forget session key** removes it. Separately configured local credentials may still apply.
 
-Send it using the box at the bottom of the page. The app searches primary sources before offering advice. Open **Sources consulted** below a reply for links and excerpts. Optionally choose a **Source region** under **Sources and skills** before your next message.
+## 4. Research, discuss, and plan
 
-Changing mentors or selecting **New Conversation** clears the chat. History lasts only for the current session; copy anything you want to keep.
+Open **Market brief** for sourced role research. Read source dates and coverage, and confirm deadlines and eligibility on employer pages. Limited or missing evidence is shown as such; the app does not estimate pay from national averages.
 
-## 4. Turn the conversation into a plan
+Open **Career chat** to discuss your priorities. Your saved profile is sent as context. After a reply, use **Create a task plan** in the sidebar, choose 1–365 days, and select **Create checked plan**. Download the resulting Markdown if you want to keep it.
 
-1. Share your situation and wait for the reply.
-2. Open **Create a task plan** in the sidebar.
-3. Set **Plan length (days)** from 1 to 365. Seven days is the starting value.
-4. Select **Create checked plan**.
+The app checks task fields, scheduling, and source references. These checks do not guarantee accurate advice or a job outcome. Additional mentor styles remain available.
 
-A successful plan has 3–8 tasks. **Task fields and schedule checked** means its required fields and dates passed the app's checks. Source references are checked against retrieved results. The label does not guarantee accurate advice or a plan that fits your situation.
+## 5. Keep records and stop
 
-## 5. Adjust the app
+Use **Download application CSV** before closing or refreshing. The tracker supports up to 200 records. Next time, import that CSV and select **Replace records with CSV**; a valid import replaces the current list. Imports accept files up to 3 MB.
 
-- **Appearance:** open the top-right app menu and choose **Light**, **Dark**, or **System**.
-- **Online access:** under **Permissions**, clear **Allow online requests** to pause new calls once processed. Calls already in progress may finish.
-- **Request limits:** under **Permissions**, reduce **Search calls per request** or **Model calls per plan** from 2 to 1. One model call leaves no allowance to correct a failed plan. These count attempts, not spending.
-- **Activity:** **Recent activity** shows request counts and events. **New Conversation** clears this in-memory history.
+Download plans and briefs you want to retain. The app stores no persistent conversation or application database.
 
-For more detail, see the [permissions guide](https://github.com/C1S9/career-planning-assistant/blob/main/docs/PERMISSIONS.md).
+Select **Quit** or close the launcher when finished. Closing only the browser tab leaves the local server running.
 
 ## If something gets stuck
 
-- **The app will not open:** fully extract the ZIP and keep `_internal` beside the EXE. If startup times out, select **Quit** and reopen the EXE.
-- **Windows shows a publisher or SmartScreen notice:** this release is unsigned. Confirm the download came from the project's release page and compare its SHA-256 with `SHA256SUMS.txt` there.
-- **A reply fails:** follow the error message. Check your connection, key, model access, and balance; wait if the service is busy. Then select **Retry Reply**. It retries your existing message or plan and may incur another charge.
-- **Online requests are paused:** enable **Allow online requests** under **Permissions**, then select **Retry Reply** if shown.
-- **No suitable sources were found:** if chat asks for more context, clarify your concern and check the source region. For a failed plan, select **Retry Reply** later or **New Conversation** to start again.
-- **The plan button is unavailable:** enter your key, share your situation, and wait for a reply. Resolve any failed reply first.
+- **The app will not open:** fully extract the ZIP and keep `_internal` beside the executable. Quit and reopen after a startup timeout.
+- **A reply fails:** check the connection, key, model access, and balance, then use **Retry Reply** if offered. Retrying may incur another charge.
+- **Online requests are paused:** enable **Allow online requests** under **Permissions** when ready. Local tools remain available.
+- **No useful sources:** inspect the evidence status and use the official portals directly. An empty or blocked search is not evidence of an empty job market.
+- **A CSV fails to import:** start with the app's exported header, preserve IDs, use valid dates/statuses and HTTPS links, and stay within 200 records and 3 MB. Existing records remain unchanged on validation failure.
+- **The plan action is unavailable:** connect your account, share your situation, and resolve any pending reply first.
 
-Startup logs: `%LOCALAPPDATA%\LifeDirectionAgent\desktop.log`. To [report a problem](https://github.com/C1S9/career-planning-assistant/issues), describe what you clicked and the error shown. Remove keys and personal details from anything you share.
+Startup logs are at `%LOCALAPPDATA%\LifeDirectionAgent\desktop.log`. Remove keys and personal details before sharing an error report.
 
-## When you are finished
-
-Copy anything you want to keep, then select **Quit** or close the launcher window. Closing only the browser tab leaves the app running. Next time, open `LifeDirectionAgent.exe` again.
+Read the [student career guide](STUDENT_CAREER_GUIDE.md) for a fuller walkthrough and the [permissions guide](PERMISSIONS.md) for request controls.

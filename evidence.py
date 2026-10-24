@@ -29,6 +29,7 @@ TRUSTED_DOMAINS = {
     "learning": ("unesco.org", "oecd.org", "nationalcareers.service.gov.uk", "ed.gov", "moe.gov.cn", "gov.cn"),
     "habits": ("nih.gov", "nhs.uk", "who.int", "cdc.gov", "nhc.gov.cn", "gov.cn"),
     "relationships": ("nhs.uk", "nih.gov", "who.int", "nhc.gov.cn", "gov.cn"),
+    "student_market": ("ncss.cn", "moe.gov.cn", "mohrss.gov.cn", "stats.gov.cn"),
 }
 
 
@@ -113,6 +114,17 @@ def _clean(value: str, limit: int) -> str:
 
 
 def _scoped_queries(query: str, mentor_id: str) -> tuple[str, ...]:
+    if mentor_id == "student_market":
+        # Separate recruitment/skills and employment/statistical-context searches.
+        groups = (
+            (" 实习 校园招聘 技能要求", ("ncss.cn", "moe.gov.cn", "mohrss.gov.cn")),
+            (" 高校毕业生 就业 统计 工资 统计口径", ("stats.gov.cn", "mohrss.gov.cn")),
+        )
+        return tuple(
+            (query + purpose)[:128 - len(scope) - 1].rstrip() + " " + scope
+            for purpose, domains in groups
+            for scope in (" OR ".join("site:" + domain for domain in domains),)
+        )
     domains = TRUSTED_DOMAINS[mentor_id]
     if re.search(r"china|chinese|中国|国内", query, re.I):
         domains = tuple(domain for domain in domains if domain.endswith("gov.cn"))
@@ -234,7 +246,9 @@ def retrieve_evidence(query: str, *, api_key: str, mentor_id: str = "career",
             if source and source.url not in seen:
                 seen.add(source.url)
                 sources.append(Source("S" + str(len(sources) + 1), source.title, source.url, source.excerpt, source.published_date))
-                if len(sources) == MAX_SOURCES:
+                # Leave room for the second student search's market context.
+                limit = 2 if mentor_id == "student_market" and index == 0 else MAX_SOURCES
+                if len(sources) == limit:
                     break
         if len(sources) == MAX_SOURCES:
             break

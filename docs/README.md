@@ -1,25 +1,27 @@
 # Find the guide you need
 
-If you want to try the app, start with the Windows guide. If you want to understand or change it, start with the learning guide.
+The current source is the v0.5.0 Graduate Career Workbench for mainland China students and recent graduates.
 
 ## Use the app
 
-- [Windows quick start](WINDOWS_QUICKSTART.md): download, connect your DeepSeek account, and start your first conversation.
-- [Current release](RELEASE_STATUS.md): download links, version details, and what was checked before publication.
-- [Keep your API key private](API_KEY_GIT_CHECK.md): where to put your key and what to check before sharing source code.
+- [Student career guide](STUDENT_CAREER_GUIDE.md): build a profile, investigate a role, compare skills, and track applications.
+- [Windows quick start](WINDOWS_QUICKSTART.md): open the portable app and connect your DeepSeek account.
+- [Release status](RELEASE_STATUS.md): distinguish the current source candidate from earlier published releases.
+- [Keep your API key private](API_KEY_GIT_CHECK.md): configure credentials without sharing them.
 
-## Learn how it works
+## Understand the design
 
-- [Learning guide](LEARNING_GUIDE.md): follow a message through the UI, search, model call, and response checks.
-- [Sources and coaching skills](EVIDENCE_AND_SKILLS.md): how the app chooses source material and loads coaching instructions.
-- [Permissions](PERMISSIONS.md): how call limits, restricted roles, expiry, and activity records work.
-- [Permission design review](PERMISSION_DESIGN_REVIEW.md): the design choices, research references, and tests behind the permission layer.
+- [Student-career research](STUDENT_CAREER_RESEARCH.md): primary China sources, access limitations, and reuse decisions.
+- [Permissions](PERMISSIONS.md): call limits, restricted capabilities, expiry, and activity records.
+- [Sources and coaching skills](EVIDENCE_AND_SKILLS.md): the source and runtime-skill foundation introduced before the student tools.
+- [Learning guide](LEARNING_GUIDE.md): the earlier chat and checked-plan architecture; see the student guide for the new workbench.
+- [Permission design review](PERMISSION_DESIGN_REVIEW.md): permission-layer research and earlier validation.
 
 ## Follow the project
 
-- [Changelog](../CHANGELOG.md): changes by version.
-- [v0.4.0 release notes](releases/v0.4.0.md): the permission controls added in this release.
-- [GitHub checks](https://github.com/C1S9/career-planning-assistant/actions): test results for source changes.
-- [Project planning files](../devpost/): the hackathon brief, scope, and design notes. These record the project's development; use the current README and release notes for the app's present behavior.
+- [v0.5.0 notes](releases/v0.5.0.md) and [changelog](../CHANGELOG.md).
+- [Project planning records](../devpost/): current scope updates followed by historical decisions. Draft approval statuses are retained.
+- [v0.4.0 notes](releases/v0.4.0.md), [v0.3.0 notes](releases/v0.3.0.md), and [v0.2.0 notes](releases/v0.2.0.md): earlier release records.
+- [GitHub checks](https://github.com/C1S9/career-planning-assistant/actions): externally recorded runs; a link alone does not establish a check passed for this candidate.
 
 [Back to the project](../README.md)

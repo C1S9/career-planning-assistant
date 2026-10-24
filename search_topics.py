@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 
 from mentors import get_mentor
+from student_tools import StudentProfile, ROLE_TERMS, CITY_TERMS
 
 
 # Only these fixed phrases can enter a search query. Names, contact details,
@@ -51,6 +52,25 @@ CHINA_TOPICS = {
     "workplace communication conflict": "职场 沟通 冲突",
     "healthy relationships communication boundaries": "人际关系 沟通",
 }
+
+
+STUDENT_GOAL_TERMS = {
+    "Internship": "大学生 实习 岗位要求",
+    "Graduate role": "应届毕业生 校园招聘 岗位要求",
+    "Explore career options": "大学生 就业方向 职业技能",
+}
+
+
+def student_search_topic(profile: StudentProfile) -> str:
+    """Validate the background and emit only application-owned China terms."""
+    if not isinstance(profile, StudentProfile):
+        raise ValueError("Choose a valid student profile before researching.")
+    try:
+        checked = StudentProfile.model_validate(profile.model_dump())
+    except ValueError:
+        raise ValueError("Choose a valid student profile before researching.") from None
+    return " ".join(("中国", ROLE_TERMS[checked.target_role],
+                     CITY_TERMS[checked.city], STUDENT_GOAL_TERMS[checked.goal]))
 
 
 def search_topic(messages: Sequence[dict], mentor_id: str, region: str = "Not specified") -> str:

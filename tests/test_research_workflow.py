@@ -103,7 +103,8 @@ class ResearchPageTests(unittest.TestCase):
         record = page.session_state.messages[-1]["evidence"]
         self.assertEqual(record["sources"][0]["url"], ready_evidence().sources[0].url)
         page.run()
-        page.selectbox(key="source_region").set_value("China").run()
+        page.selectbox(key="profile_city").set_value("shanghai")
+        next(button for button in page.button if button.label == "Save profile").click().run()
         self.assertEqual(research.call_count, 1)
         self.assertEqual(complete.call_count, 1)
 

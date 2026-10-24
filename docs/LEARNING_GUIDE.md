@@ -1,5 +1,12 @@
 # Learn How Life Direction Agent Works
 
+## v0.5.0 reading route
+
+The current app adds a mainland China graduate workspace. Start with `student_tools.py` for profile validation, skill aliases, and CSV operations; `student_ui.py` for local tools and state; `student_market.py` for researched briefs; and `app.py` for the three views. Existing conversation, evidence, and permission code still supplies the online path.
+
+The walkthrough below preserves the v0.4.0 learning record and its historical test counts. Its optional source-region control has been replaced in the student workspace by explicit China scope. Use the [student career guide](STUDENT_CAREER_GUIDE.md) for current UI steps and [release status](RELEASE_STATUS.md) for current validation evidence.
+
+
 Follow version 0.4.0 from a message to a reply or checked plan. The exercises use fictional inputs and need no API key. Code, comments, and interface text are in English.
 
 Start with the [project README](../README.md) for installation or the [documentation index](README.md) for other guides.

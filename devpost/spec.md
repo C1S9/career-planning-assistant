@@ -5,6 +5,30 @@ status: draft
 
 # Career Planning Assistant — Technical Specification
 
+## Current technical increment — v0.5.0
+
+The student workflow reuses the existing Python/Streamlit application, Pydantic dependency, DeepSeek transport, source-reference validation, and permission gateway. No new runtime dependency or agent framework is introduced.
+
+| Module | Responsibility |
+| --- | --- |
+| `student_tools.py` | Strict profile/application schemas, fixed bilingual skill aliases and excerpts, practice suggestions, bounded UTF-8 CSV import/export. Pure local operations; no network or automatic disk persistence. |
+| `student_ui.py` | Explicit profile save, local comparison, application controls, session state, and source-preserving Markdown export. |
+| `student_market.py` | Scoped source-backed brief with separately generated pay-limit and date information, using the existing request gateway. |
+| `search_topics.py` / `evidence.py` | Convert validated choices to application-owned search terms and use the mainland China primary-publisher source scope. |
+| `app.py` / `agent.py` / `prompts.py` | Integrate the student profile into chat and plans without mixing it into raw search queries; expose the three workspace views. |
+| Windows packaging | Bundle and hash the three new modules. Preserve `LifeDirectionAgent.exe`, the existing data directory, and `APP_NAME`; increment version metadata to 0.5.0. |
+
+The student background is untrusted data, not system instructions. The model receives it only for requested online guidance. Search sees bounded role/city/goal terms, not the freeform major, pasted description, or tracker rows. Keyword tools operate on fixed escaped aliases rather than user-authored regular expressions.
+
+CSV import accepts the exact exported eight-column schema, valid statuses/dates/URLs, unique UUID record IDs, at most 200 records, and at most 3 MB. Validate the complete upload before replacing session records. Export uses a UTF-8 BOM and escapes formula-like values for spreadsheet use.
+
+Verification should cover profile bounds, search privacy, source scope, absent/old evidence, source references, local-only comparisons, CSV round trips and rejection without partial replacement, UI rerun behavior, and packaged startup. The executable self-test uses local fixtures and callbacks; it does not establish live provider success. Actual test counts and build outcomes belong in the release record when observed.
+
+The following original specification and milestone updates are preserved as historical context. Older environment paths and test counts refer to their original checkpoints, not this source candidate.
+
+## Historical technical record
+
+
 Updated for the learner's explicit DeepSeek and conversational-interface choices. Other recommendations remain draft. The environment has been verified locally as Python 3.15.0 with Streamlit 1.66.0; the current implementation passed 22 provider-independent checks. The learner reported successful ordinary chat, a contextual revision, and a checked-plan test; the full checked-plan output was not supplied for independent review.
 
 ## How This Works, In Plain Language

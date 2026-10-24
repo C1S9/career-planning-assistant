@@ -1,6 +1,8 @@
 # Permissions and Execution Boundaries
 
-Version 0.4.0 implements authorization in Python around the application's existing search and model transports. A model can suggest actions in its text, but generated text cannot register a tool, mint a request grant, change its limits, or select an arbitrary network destination.
+The permission gateway introduced in version 0.4.0 and retained in v0.5.0 implements authorization in Python around the application's existing search and model transports. A model can suggest actions in its text, but generated text cannot register a tool, mint a request grant, change its limits, or select an arbitrary network destination.
+
+The student profile is included in requested online advice. Its role, city, and goal are translated into fixed search terms; freeform profile fields do not become search queries. Local profile editing, skill comparison, tracker CSV import/export, and advice downloads do not start network calls. The tracker is not sent to DeepSeek.
 
 ## 1. What is enforced
 
@@ -9,7 +11,7 @@ The current registry contains exactly two tools:
 | Layer | Registered tool | Fixed resource | Declared data category | Purpose |
 | --- | --- | --- | --- | --- |
 | L0: research | `web.search` | `https://api.deepseek.com/v1/tools/search` | `public_topic` | Retrieve primary-source content using a general search topic |
-| L1: generation | `model.complete` | `https://api.deepseek.com/chat/completions` | `conversation` | Generate a reply or a structured action plan |
+| L1: generation | `model.complete` | `https://api.deepseek.com/chat/completions` | `conversation` | Generate a reply, market brief, or structured action plan |
 | L2: external actions | None | None | None | Email, arbitrary upload, payment, and deletion remain unavailable |
 | L3: administration | None | None | None | Model messages cannot administer grants or register tools |
 
@@ -19,17 +21,18 @@ The application constructs search terms from a fixed topic vocabulary rather tha
 
 ## 2. One submission, one grant
 
-An explicit send, checked-plan action, or retry creates a request scope. Its selected settings and request identifier are captured for that operation. Ordinary Streamlit redraws do not create permission to send another request.
+An explicit send, market-brief request, checked-plan action, or retry creates a request scope. Its selected settings and request identifier are captured for that operation. Ordinary Streamlit redraws do not create permission to send another request.
 
 Default application limits are:
 
 | Request | Search starts | Model completions | Maximum grant lifetime |
 | --- | --- | --- | --- |
 | Chat | 2 | 1 | 600 seconds |
+| Market brief | 2 | 1 | 600 seconds |
 | Checked plan | 2 | 2, including one correction | 600 seconds |
 | Paused network | 0 | 0 | No permitted network start |
 
-The Permissions controls can lower search calls per request from two to one and plan model calls from two to one. Chat remains capped at one model completion. Setting the plan allowance to one disables its possible correction because no second completion is authorized. These values are captured for a request; changing the next-request settings does not enlarge an existing grant.
+The Permissions controls can lower search calls per request from two to one and plan model calls from two to one. Chat and market briefs remain capped at one model completion. Setting the plan allowance to one disables its possible correction because no second completion is authorized. These values are captured for a request; changing the next-request settings does not enlarge an existing grant.
 
 The limits are ceilings, not target counts. Suitable evidence can require fewer searches. A failed search can prevent any model completion. A valid plan uses no correction. There are no hidden application retries after a provider error.
 

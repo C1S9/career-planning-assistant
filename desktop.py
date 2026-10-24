@@ -174,6 +174,64 @@ def permission_self_test() -> None:
         raise RuntimeError("A denied bundled operation was started.")
 
 
+def student_self_test() -> dict:
+    """Exercise the bundled student tools with fictional data and no network calls."""
+    from evidence import EvidenceBundle, trusted_domain
+    from search_topics import student_search_topic
+    from student_market import MarketBrief
+    from student_tools import (
+        ApplicationEntry, ApplicationImportError, StudentProfile, compare_skills,
+        export_applications, import_applications,
+    )
+    from student_ui import export_advice
+
+    profile = StudentProfile(major="private smoke-test background", target_role="data",
+                             city="shanghai", skills=["excel"], weekly_hours=5)
+    topic = student_search_topic(profile)
+    if profile.major in topic or "上海" not in topic:
+        raise RuntimeError("Bundled student topic privacy check failed.")
+    try:
+        StudentProfile(weekly_hours=0)
+    except ValueError:
+        pass
+    else:
+        raise RuntimeError("Bundled student profile bounds failed.")
+    mentions = compare_skills("Excel and SQL support data analysis.", profile.skills)
+    by_skill = {row["skill_id"]: row for row in mentions}
+    if not by_skill["excel"]["declared"] or by_skill["sql"]["declared"]:
+        raise RuntimeError("Bundled skill comparison failed.")
+    entry = ApplicationEntry(company="Fictional campus employer", role="Data intern",
+                             city="Shanghai", notes="=fictional spreadsheet text")
+    exported = export_applications([entry])
+    if import_applications(exported) != [entry] or b"'=fictional" not in exported:
+        raise RuntimeError("Bundled application CSV round trip failed.")
+    try:
+        import_applications(b"company,role\ninvalid,template\n")
+    except ApplicationImportError:
+        pass
+    else:
+        raise RuntimeError("Bundled application CSV validation failed.")
+    for url in ("https://www.ncss.cn/", "https://www.moe.gov.cn/",
+                "https://job.mohrss.gov.cn/", "https://www.stats.gov.cn/"):
+        if trusted_domain(url, "student_market") is None:
+            raise RuntimeError("Bundled China source scope failed.")
+    for url in ("https://www.ncss.cn.attacker.com/", "https://www.bls.gov/",
+                "https://127.0.0.1/private"):
+        if trusted_domain(url, "student_market") is not None:
+            raise RuntimeError("Bundled China source exclusion failed.")
+    evidence = EvidenceBundle(status="unavailable", query=topic,
+                              checked_at="2026-10-24T00:00:00+00:00", sources=(),
+                              note="Offline bundled smoke fixture; no live retrieval.")
+    brief = MarketBrief(text="Fictional offline brief.", evidence=evidence)
+    markdown = export_advice(brief.text, brief.evidence.to_dict())
+    if brief.text not in markdown or evidence.checked_at not in markdown:
+        raise RuntimeError("Bundled advice download failed.")
+    return {"student_profile": "passed", "student_search_privacy": "passed",
+            "skill_comparison": "passed", "application_csv": "passed",
+            "china_source_filter": "passed", "market_module": "passed",
+            "advice_export": "passed"}
+
+
 def self_test(data_directory: Path) -> dict:
     """Exercise bundled code, frontend assets, and the script with no paid call."""
     from mentors import MENTORS
@@ -181,6 +239,7 @@ def self_test(data_directory: Path) -> dict:
     from coaching_skills import active_skill_names, load_skill_instructions
     from evidence import trusted_domain
     permission_self_test()
+    student_checks = student_self_test()
     for mentor_id in MENTORS:
         if not load_skill_instructions(mentor_id, planning=True):
             raise RuntimeError("Bundled coaching skills could not be loaded.")
@@ -215,7 +274,7 @@ def self_test(data_directory: Path) -> dict:
         if not read_local(asset):
             raise RuntimeError("The bundled frontend asset was empty.")
         read_local(url + "/_stcore/script-health-check", timeout=30)
-        return {"ok": True, "version": __version__, "mentor_count": len(MENTORS), "skill_count": len(active_skill_names("career", planning=True)), "bundled_skills": "passed", "source_filter": "passed", "permission_gateway": "passed", "native_launcher": "passed", "plan_validation": "passed", "server_health": "passed", "frontend_asset": "passed", "app_script": "passed", "paid_api_requests": 0}
+        return {"ok": True, "version": __version__, "mentor_count": len(MENTORS), "skill_count": len(active_skill_names("career", planning=True)), "bundled_skills": "passed", "source_filter": "passed", "permission_gateway": "passed", "native_launcher": "passed", "plan_validation": "passed", "server_health": "passed", "frontend_asset": "passed", "app_script": "passed", "paid_api_requests": 0, **student_checks}
     finally:
         stop_server(child)
 

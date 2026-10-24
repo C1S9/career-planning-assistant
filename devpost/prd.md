@@ -5,6 +5,28 @@ status: draft
 
 # Career Planning Assistant — Product Requirements
 
+## Current product requirements — v0.5.0
+
+**Audience:** mainland China students and recent graduates seeking internships, graduate roles, or career exploration. English interface and generated guidance remain the project convention.
+
+**Primary journey:** save a study profile, choose Career chat / Market brief / Job tools, investigate a role, compare a real posting, track the next application action, and download an actionable plan.
+
+| Capability | Required behavior |
+| --- | --- |
+| Student profile | Validate study stage, role, city, goal, selected skills, optional major, and 1–40 preparation hours per week. Apply only on explicit save. Changed context starts a fresh conversation and clears stale research/comparison. |
+| Market brief | Use bounded role/city/goal topic terms and mainland China primary sources. Distinguish source observations from suggestions, show dates and coverage limits, and keep missing pay evidence unknown. |
+| Job-description tool | Compare up to 12,000 characters against supported skill aliases and self-reported profile skills. Show original excerpts and practice ideas. No ATS score, skill certification, or hiring prediction. |
+| Application tracker | Add records, update status/notes, remove records, export CSV, and atomically replace from valid CSV. Maximum 200 records and 3 MB per import; no tracker contents sent to DeepSeek. |
+| Action plan | Retain checked 1–365-day plans with 3–8 tasks and download Markdown with the associated source record. |
+| Failure and privacy | Keep local tools available without a key. Display research gaps and safe errors. Preserve current tracker records on failed import. State session-only retention and per-request charges. |
+
+A complete profile is helpful but not a prerequisite to ordinary conversation. Study-stage choices do not establish an employer's graduation-year eligibility. A salary or deadline needs a relevant current source; an official portal link alone is not verification.
+
+Existing source panels, optional mentors, retries, permission controls, and offline packaging remain. This implementation increment does not mark the historical draft agreement approved.
+
+## Historical product record
+
+
 A DeepSeek-powered conversation that helps a person uncertain about their employment future work toward an actionable task plan.
 
 ## Decision Status

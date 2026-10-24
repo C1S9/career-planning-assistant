@@ -11,14 +11,21 @@ from mentors import DEFAULT_MENTOR, MENTORS, get_mentor
 from models import MAX_PLAN_DAYS, MIN_PLAN_DAYS, PlanValidationError, format_plan, validate_duration
 from version import APP_NAME, __version__
 from coaching_skills import active_skill_names
-from search_topics import REGIONS
 from permissions import AuditTrail, PermissionGateway
+from student_market import market_brief
+from student_ui import (
+    export_advice, initialize_student_state, render_application_tracker,
+    render_profile, render_skill_comparison,
+)
 
 st.set_page_config(
     page_title=APP_NAME, page_icon=":material/explore:", layout="centered",
     initial_sidebar_state="expanded",
-    menu_items={"About": f"{APP_NAME} v{__version__}. General coaching with DeepSeek."},
+    menu_items={"About": f"{APP_NAME} v{__version__}. Student career preparation with DeepSeek."},
 )
+# Use the tracker's validated CSV download instead of generic table exports,
+# which omit its schema and spreadsheet-formula escaping.
+st.set_option("client.disableDataExport", True)
 
 
 def setting(name: str, default: str = "") -> str:
@@ -93,6 +100,8 @@ def show_evidence(record: dict) -> None:
 
 st.session_state.setdefault("mentor_choice", DEFAULT_MENTOR)
 st.session_state.setdefault("active_mentor", DEFAULT_MENTOR)
+initialize_student_state()
+st.session_state.setdefault("workspace_view", "Career chat")
 if "messages" not in st.session_state:
     new_conversation()
 if "permission_audit" not in st.session_state:
@@ -119,7 +128,7 @@ with st.sidebar:
 
     local_key = setting("DEEPSEEK_API_KEY")
     current_key = st.session_state.get("session_api_key", "") or local_key
-    with st.expander("Connection", expanded=not bool(current_key), icon=":material/key:"):
+    with st.expander("Connection", icon=":material/key:"):
         st.caption("Use your DeepSeek key. A pasted key stays in this session and is not saved to disk.")
         with st.form("connection_form"):
             st.text_input("DeepSeek API key", type="password", key="connection_key")
@@ -137,6 +146,8 @@ model = st.session_state.get("connection_model", "").strip() or DEFAULT_MODEL
 configured = bool(api_key) and api_key not in {"paste", "paste-your-deepseek-key-here", "YOUR_API_KEY"}
 request_now = st.session_state.queued
 st.session_state.queued = False
+if request_now:
+    st.session_state.workspace_view = "Career chat"
 awaiting_reply = st.session_state.messages[-1]["role"] == "user"
 
 with st.sidebar:
@@ -160,12 +171,12 @@ with st.sidebar:
             else:
                 st.rerun()
     st.caption("Switch light or dark from the top-right app menu.")
-    st.caption("General coaching. Your choices remain yours.")
+    render_profile(new_conversation, disabled=request_now)
+    st.caption("Career preparation. Your choices remain yours.")
     with st.expander("Sources and skills", icon=":material/travel_explore:"):
-        st.selectbox("Source region", REGIONS, key="source_region", disabled=awaiting_reply,
-                     help="Optional. A source's country does not establish which rules apply to you.")
+        st.caption("Source market: mainland China. Set your target role and city in Your student profile.")
         st.caption("Before advice, the app searches primary sources through DeepSeek using a general topic, not your full message. Search may add API charges.")
-        st.caption("Selected region applies to new requests. Source relevance and factual accuracy still need judgment.")
+        st.caption("Search excerpts can be incomplete or outdated. Open the employer's original posting before applying.")
         st.caption("Active coaching skills: " + ", ".join(active_skill_names(selected, planning=False)))
 
     with st.expander("Permissions", icon=":material/security:"):
@@ -178,8 +189,8 @@ with st.sidebar:
                         step=1, key="permission_search_limit")
         st.number_input("Model calls per plan", min_value=1, max_value=2, value=2,
                         step=1, key="permission_model_limit")
-        st.caption("Sending a message authorizes one request for up to 10 minutes. Chat uses at most one model call; a plan may use a second call to correct invalid output.")
-        st.caption("Search receives a general topic. The model receives your conversation. Both use fixed DeepSeek endpoints. Failed calls count toward these limits; these are not spending limits.")
+        st.caption("Sending a message or generating a market brief authorizes one request for up to 10 minutes. Chat and briefs use at most one model call; a plan may use a second call to correct invalid output.")
+        st.caption("Search receives preset topics. The model receives your student profile and, for chat or plans, your conversation. Both use fixed DeepSeek endpoints. Failed calls count toward these limits; these are not spending limits.")
         st.caption("Pausing blocks new calls when the setting is processed. A request already in progress cannot be recalled. Sending messages, payments, and file deletion are unavailable.")
 
     with st.expander("Recent activity", icon=":material/history:"):
@@ -194,21 +205,91 @@ with st.sidebar:
             st.caption("No activity yet.")
         st.caption("Up to 200 metadata events in this conversation. No keys, messages, search queries, or source text are recorded here. New Conversation clears this history.")
 
-st.title("Find your next step")
-st.write(mentor.description)
-st.caption(f"{mentor.name} mentor · Messages are sent to DeepSeek. History stays in this session.")
-if not configured:
-    st.info("Open Connection in the sidebar and enter your DeepSeek API key to begin.")
-if not st.session_state.permission_online:
-    st.info("Online requests are paused. Enable them in Permissions to continue.")
+st.title("Graduate career workbench")
+st.caption("Explore a direction. Understand the requirements. Prepare your next application.")
+view = st.segmented_control("Workspace", ("Career chat", "Market brief", "Job tools"),
+                            key="workspace_view", required=True)
 
-for message in st.session_state.messages:
+if view == "Job tools":
+    render_skill_comparison()
+    st.divider()
+    render_application_tracker()
+    st.stop()
+
+if not configured:
+    st.info("Open Connection in the sidebar and enter your DeepSeek API key for online advice. Job tools work without a key.")
+if not st.session_state.permission_online:
+    st.info("Online requests are paused. Job tools remain available.")
+
+if view == "Market brief":
+    from student_tools import CITIES, ROLES
+
+    profile = st.session_state.student_profile
+    st.subheader("Research your target market")
+    st.write(f"{ROLES[profile.target_role]} · {CITIES[profile.city]} · {profile.goal}")
+    st.caption("Uses your saved profile. A brief looks for primary-source evidence on skills, market conditions and pay. General statistics do not establish graduate salaries or live vacancies.")
+    with st.container(horizontal=True):
+        st.link_button("Browse NCSS internships", "https://www.ncss.cn/student/jobs/internindex.html")
+        st.link_button("Browse NCSS graduate jobs", "https://www.ncss.cn/student/jobs/index.html")
+    st.caption("These official portal links open in your browser. Check each employer's dates and requirements; the links are not evidence that a job is open.")
+    if st.button("Generate market brief", type="primary", disabled=not configured):
+        records = []
+        gateway = None
+        st.session_state.market_result = None
+        st.session_state.market_error = None
+        st.session_state.market_evidence = None
+        try:
+            online = st.session_state.permission_online
+            if type(online) is not bool:
+                raise ChatError("Invalid permission settings. Review Permissions and retry.")
+            try:
+                gateway = PermissionGateway(search_enabled=online,
+                    search_limit=st.session_state.permission_search_limit,
+                    model_limit=1 if online else 0, audit=st.session_state.permission_audit)
+            except ValueError:
+                raise ChatError("Invalid permission settings. Review Permissions and retry.") from None
+            st.session_state.current_permission = gateway
+            with st.spinner("Checking primary sources for your target role and city..."):
+                brief = market_brief(profile, api_key=api_key, model=model, gateway=gateway,
+                                     on_evidence=records.append)
+            st.session_state.market_result = brief.text
+            st.session_state.market_evidence = brief.evidence.to_dict()
+        except ChatError as error:
+            st.session_state.market_error = str(error)
+            st.session_state.market_evidence = records[-1].to_dict() if records else None
+        except Exception:
+            st.session_state.market_error = "The market brief could not be completed. Please try again."
+        finally:
+            if gateway is not None:
+                gateway.close()
+                st.session_state.last_permission = gateway.snapshot()
+                st.session_state.current_permission = None
+        st.rerun()
+    if st.session_state.market_error:
+        st.error(st.session_state.market_error)
+    if st.session_state.market_result:
+        st.markdown(st.session_state.market_result)
+        st.download_button("Download market brief", export_advice(st.session_state.market_result,
+                            st.session_state.market_evidence), file_name="graduate-market-brief.md",
+                            mime="text/markdown", on_click="ignore")
+    if st.session_state.market_evidence:
+        show_evidence(st.session_state.market_evidence)
+    st.stop()
+
+st.write(mentor.description)
+st.caption(f"{mentor.name} mentor · Profile and messages are sent to DeepSeek. History stays in this session.")
+
+for index, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         if message.get("schedule_checked"):
             st.caption("Task fields and schedule checked. Source identities checked; facts and suitability still need judgment.")
         st.markdown(message["content"])
         if message.get("evidence"):
             show_evidence(message["evidence"])
+        if message.get("schedule_checked"):
+            st.download_button("Download action plan", export_advice(message["content"], message.get("evidence")),
+                               file_name="graduate-action-plan.md", mime="text/markdown",
+                               key=f"plan_download_{index}", on_click="ignore")
 
 if awaiting_reply and not request_now:
     st.error(st.session_state.reply_error or "Your last message has no reply yet. Retry when you are ready.")
@@ -221,7 +302,7 @@ if awaiting_reply and not request_now:
         st.rerun()
 
 prompt = st.chat_input(
-    "What would you like to work through?", max_chars=MAX_MESSAGE_CHARS,
+    "Tell me about your studies, target role or job search question...", max_chars=MAX_MESSAGE_CHARS,
     disabled=not configured or awaiting_reply,
 )
 if prompt:
@@ -258,14 +339,16 @@ if request_now and awaiting_reply:
                 plan = generate_plan(
                     list(st.session_state.messages), duration_days=st.session_state.request_days,
                     api_key=api_key, model=model, mentor_id=selected_mentor,
-                    source_region=st.session_state.source_region, on_evidence=research_records.append,
+                    source_region="China", student_profile=st.session_state.student_profile,
+                    on_evidence=research_records.append,
                     gateway=gateway,
                 )
                 answer = format_plan(plan)
                 checked = True
             else:
                 answer = reply(list(st.session_state.messages), api_key=api_key, model=model, mentor_id=selected_mentor,
-                               source_region=st.session_state.source_region, on_evidence=research_records.append,
+                               source_region="China", student_profile=st.session_state.student_profile,
+                               on_evidence=research_records.append,
                                gateway=gateway)
     except ChatError as error:
         if token == st.session_state.request_token:

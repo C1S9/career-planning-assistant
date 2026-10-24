@@ -8,10 +8,11 @@ from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 
 from models import CareerPlan, ChatMessage, PlanValidationError, parse_plan, validate_duration
 from mentors import DEFAULT_MENTOR
-from prompts import plan_system_prompt, system_prompt
+from prompts import plan_system_prompt, system_prompt, student_instructions
 from evidence import EvidenceBundle, retrieve_evidence
 from references import ReferenceError, validate_references
-from search_topics import search_topic
+from search_topics import search_topic, student_search_topic
+from student_tools import StudentProfile
 from permissions import MODEL_RESOURCE, PermissionDenied, PermissionGateway
 
 # The destination is DeepSeek, even though the compatible client is named OpenAI.
@@ -52,12 +53,14 @@ def reply(
     mentor_id: str = DEFAULT_MENTOR, source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
     gateway: PermissionGateway | None = None,
+    student_profile: StudentProfile | None = None,
 ) -> str:
     """One explicit request grants bounded tools; always revoke them afterward."""
     gate = _request_gateway(gateway, model_limit=1)
     try:
         return _reply(messages, api_key=api_key, model=model, mentor_id=mentor_id,
-                      source_region=source_region, on_evidence=on_evidence, gateway=gate)
+                      source_region=source_region, on_evidence=on_evidence, gateway=gate,
+                      student_profile=student_profile)
     except PermissionDenied:
         raise ChatError("This action is outside the current permission, expired, paused, or over its call limit. Review Permissions and retry when ready.") from None
     finally:
@@ -78,6 +81,7 @@ def _reply(
     source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
     gateway: PermissionGateway,
+    student_profile: StudentProfile | None = None,
 ) -> str:
     """Return one complete DeepSeek reply, or raise a safe ChatError."""
     # Validate here as well as in the page so this module is safe to reuse.
@@ -89,10 +93,13 @@ def _reply(
     # messages provide the conversation context for this particular request.
     try:
         instruction = system_prompt(mentor_id)
+        if student_profile is not None:
+            instruction += student_instructions(student_profile)
     except ValueError as error:
         raise ChatError(str(error)) from None
     evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
-                         source_region=source_region, on_evidence=on_evidence, gateway=gateway)
+                         source_region=source_region, on_evidence=on_evidence, gateway=gateway,
+                         student_profile=student_profile)
     if evidence.status != "ready":
         # Search failure cannot silently become apparently researched advice.
         return (
@@ -119,13 +126,14 @@ def generate_plan(
     source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
     gateway: PermissionGateway | None = None,
+    student_profile: StudentProfile | None = None,
 ) -> CareerPlan:
     """A plan correction shares the original call budget and authorization."""
     gate = _request_gateway(gateway, model_limit=2)
     try:
         return _generate_plan(messages, duration_days=duration_days, api_key=api_key,
                               model=model, mentor_id=mentor_id, source_region=source_region,
-                              on_evidence=on_evidence, gateway=gate)
+                              on_evidence=on_evidence, gateway=gate, student_profile=student_profile)
     except PermissionDenied:
         raise ChatError("This action is outside the current permission, expired, paused, or over its call limit. Review Permissions and retry when ready.") from None
     finally:
@@ -142,6 +150,7 @@ def _generate_plan(
     source_region: str = "Not specified",
     on_evidence: Callable[[EvidenceBundle], None] | None = None,
     gateway: PermissionGateway,
+    student_profile: StudentProfile | None = None,
 ) -> CareerPlan:
     """Generate, check, and at most once regenerate a structured task plan."""
     validate_history(messages)
@@ -152,12 +161,15 @@ def _generate_plan(
 
     try:
         mentor_instruction = plan_system_prompt(mentor_id)
+        if student_profile is not None:
+            mentor_instruction += student_instructions(student_profile)
     except ValueError as error:
         raise ChatError(str(error)) from None
     if not api_key.strip():
         raise ChatError("Chat is not configured yet. Complete the local setup to begin.")
     evidence = _research(messages, api_key=api_key, mentor_id=mentor_id,
-                         source_region=source_region, on_evidence=on_evidence, gateway=gateway)
+                         source_region=source_region, on_evidence=on_evidence, gateway=gateway,
+                         student_profile=student_profile)
     if evidence.status != "ready":
         raise ChatError("Suitable primary sources could not be retrieved. A source-grounded plan was not generated. Retry or clarify your concern.")
     schema = json.dumps(CareerPlan.model_json_schema(), ensure_ascii=True)
@@ -204,14 +216,18 @@ def _generate_plan(
     raise ChatError("The plan could not be completed.")
 
 
-def _research(messages, *, api_key, mentor_id, source_region, on_evidence, gateway):
+def _research(messages, *, api_key, mentor_id, source_region, on_evidence, gateway,
+              student_profile: StudentProfile | None = None):
     """Always retrieve before advice; share one result across a plan correction."""
     try:
-        query = search_topic(messages, mentor_id, source_region)
+        query = (student_search_topic(student_profile) if student_profile is not None
+                 else search_topic(messages, mentor_id, source_region))
     except ValueError as error:
         raise ChatError(str(error)) from None
     researcher = gateway.delegate("research", tools=("web.search",))
-    evidence = retrieve_evidence(query, api_key=api_key, mentor_id=mentor_id, gateway=researcher)
+    evidence = retrieve_evidence(query, api_key=api_key,
+                                 mentor_id="student_market" if student_profile is not None else mentor_id,
+                                 gateway=researcher)
     if on_evidence is not None:
         on_evidence(evidence)
     return evidence

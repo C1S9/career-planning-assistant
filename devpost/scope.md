@@ -5,6 +5,21 @@ status: draft
 
 # Career Planning Assistant
 
+## Current scope — v0.5.0
+
+The user selected **mainland China students and recent graduates** as the audience, with internships and campus recruitment as the employment context. The app now centers on a student profile, role-and-city market research, practical skill preparation, application organization, and a downloadable action plan. The browser title is Graduate Career Workbench; the existing Windows launcher name is retained.
+
+The current loop is: save student context, investigate a target role, inspect source evidence, compare skill mentions in a job description, record applications, and discuss a plan. The profile is optional background for conversation; a student can start with an uncertain direction. Additional mentor styles are optional support.
+
+Included tools are bounded profile validation, cited market briefs, a local keyword comparison with portfolio practice ideas, session-only application records with CSV import/export, and Markdown advice downloads. Online work uses the existing DeepSeek connection and permission gateway. Local tools do not require paid calls.
+
+Excluded from this increment: automatic applications or recruiter messages, a representative salary database, an ATS or hiring-probability score, persistent accounts, cloud synchronization, hosted service access, and guaranteed job outcomes. A published release, paid API access, formal document approval, and Devpost submission must each be evidenced separately.
+
+The earlier sections below are retained as development history. Where they describe a broad audience or defer job tools, this v0.5.0 scope update takes precedence. Their historical approval statuses are unchanged.
+
+## Historical scope record
+
+
 Working title. A conversational AI assistant, powered by DeepSeek, that helps people uncertain about their employment future develop practical next steps.
 
 ## Confirmed Direction

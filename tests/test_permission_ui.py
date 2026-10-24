@@ -33,9 +33,11 @@ def offline_provider(*answers, source_count=1):
         requests.append((endpoint, payload))
         if endpoint == SEARCH_RESOURCE:
             return httpx2.Response(200, json={"results": [{
-                "title": "Career change and transferable skills exploration",
-                "url": f"https://www.careeronestop.org/ExploreCareers/example-{index}.aspx",
+                "title": "Graduate internships and campus recruitment skills",
+                "url": f"https://www.ncss.cn/student/example-{index}.html",
                 "content": (
+                    "China graduate campus recruitment internships skills employment market. "
+                    "大学生 校园招聘 实习 应届生 毕业生 就业 技能 岗位 招聘 市场 行情。"
                     "Career change guidance recommends identifying transferable skills, "
                     "comparing career options and writing a skills assessment. Learning "
                     "about work tasks can help plan a practical career exploration."
@@ -125,7 +127,7 @@ class PermissionPageTests(unittest.TestCase):
             self.button(page, "Retry Reply").click().run()
             self.assertFalse(page.exception)
             self.assertFalse(page.error)
-            self.assertEqual([endpoint for endpoint, _ in requests], [SEARCH_RESOURCE, MODEL_RESOURCE])
+            self.assertEqual([endpoint for endpoint, _ in requests], [SEARCH_RESOURCE, SEARCH_RESOURCE, MODEL_RESOURCE])
             completed = page.session_state.last_permission
             self.assertNotEqual(completed["request_id"], denied["request_id"])
             self.assertTrue(completed["closed"])

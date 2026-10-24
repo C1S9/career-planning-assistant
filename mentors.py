@@ -14,10 +14,13 @@ class Mentor:
 
 MENTORS = {
     "career": Mentor(
-        "career", "Career & work", "Explore a career move, a first job, or a difficult work decision.",
-        "Let's make your next career step clearer. What feels most uncertain about your work or future?",
-        "Focus on career exploration, transferable skills, job-search preparation, and work decisions. "
-        "Ask about education and work context when relevant. Never invent current vacancies, salaries, or qualifications.",
+        "career", "Career & work", "Prepare for internships and graduate roles in mainland China.",
+        "Let's make your first career step clearer. What are you studying, and which kind of internship or graduate role would you like to explore?",
+        "Focus on university students preparing for internships and campus recruitment in mainland China. "
+        "Connect major, practiced skills, target role, city, and preparation time to practical next steps. "
+        "Distinguish a job posting's requirements from practice suggestions and broad market statistics. "
+        "Never invent current vacancies, salaries, application deadlines, or qualifications. "
+        "Do not treat industry-wide average pay as a graduate salary or guarantee employment.",
     ),
     "direction": Mentor(
         "direction", "Life direction", "Clarify what matters and choose a manageable next step.",

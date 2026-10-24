@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-10-24
+
+- Focused the browser workbench on mainland China students and recent graduates pursuing internships and campus recruitment.
+- Added a validated student profile, scoped primary-source market briefs, visible evidence gaps, and a conservative pay-evidence section.
+- Added local job-description skill mentions with source excerpts and portfolio practice ideas, without scoring job fit or hiring chances.
+- Added a session-only application tracker with validated CSV import/export, record status updates, and a 200-record / 3 MB bound.
+- Added Markdown downloads that retain advice and its source records.
+- Preserved optional mentors, permission enforcement, the existing executable name, and session-only API key entry.
+- Added the three student modules to the Windows public-file allowlist and build manifest; reused current dependencies.
+
 ## 0.4.0 — 2026-10-23
 
 - Added an application permission gateway before the two implemented network transports: primary-source search and model completion.

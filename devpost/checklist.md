@@ -5,6 +5,27 @@ status: draft
 
 # Build Checklist
 
+## Current delivery checklist — v0.5.0
+
+The user requested a student-career focus and selected mainland China. This increment covers the graduate workbench; it does not retroactively approve the earlier draft planning documents.
+
+- [x] Define mainland China internships and campus recruitment as the student workflow.
+- [x] Research primary China employment sources and existing validation/CSV/matching tools.
+- [x] Add bounded student profiles, local keyword comparison, and application CSV tools.
+- [x] Add a source-backed market brief and integrate profile context with career conversation.
+- [x] Add student workspace views and Markdown advice downloads.
+- [x] Update English guides, current planning summaries, version metadata, and explicit Windows bundle manifests.
+- [x] Pass 129 provider-independent tests for the student workflows and existing behavior.
+- [x] Verify market brief, chat, and a three-day plan with fictional student details through the live provider; keep this separate from simulated tests.
+- [x] Build the v0.5.0 Windows package, pass its isolated self-test, match runtime hashes, and scan the ZIP for private material.
+
+Source synchronization and package publication are recorded in GitHub's commit/tag history and release assets. See [release status](../docs/RELEASE_STATUS.md) for the validation record.
+
+These checkboxes describe implementation and observed verification, not a completed learner-led demonstration, formal draft approval, hosted service, or Devpost submission. The earlier checklist and evidence below remain a historical record.
+
+## Historical checklist record
+
+
 Build mode: learn, matching the learner's request for hands-on, step-by-step guidance.
 
 The learner explicitly selected chat and DeepSeek. Full planning-document and build-order approval remain pending; this record does not silently approve unreviewed recommendations. Environment verified: Python 3.15.0, Streamlit 1.66.0, OpenAI client 3.35.1. The initial demo snapshot was published to the private GitHub repository and verified at `8106f8acf888e462187e0bd040fdf702e43d05c5`; formal planning approval remains pending.

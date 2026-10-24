@@ -1,5 +1,14 @@
 # Evidence and coaching skills
 
+## v0.5.0 student-workbench update
+
+The current UI focuses on mainland China. Student research uses only preset role, city, and goal terms and the explicit NCSS, Ministry of Education, MOHRSS, and National Bureau of Statistics publisher scope. The student profile is passed to the model as untrusted background, while the pasted job description and application records remain local unless manually included in chat.
+
+`student_market.py` adds a requested market brief through the same bounded search and completion transports. Its source dates and conservative pay section are separate from model-written guidance. `student_tools.py` provides deterministic local comparison and CSV operations; `student_ui.py` provides their controls and source-preserving downloads. These local tools are ordinary Python functions, not additional runtime skill files.
+
+The sections below explain the retrieval foundation introduced in v0.3.0. References to the earlier optional country selector describe that version; the current student workspace uses China. See the [student guide](STUDENT_CAREER_GUIDE.md) and [source research record](STUDENT_CAREER_RESEARCH.md).
+
+
 Version 0.3.0 adds an actual retrieval step before advice. It does not turn the model into a certified adviser or prove that every generated sentence is true.
 
 ## Request flow
